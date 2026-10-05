@@ -1,6 +1,19 @@
 const morningTab=document.querySelector('#morningTab'),eveningTab=document.querySelector('#eveningTab'),list=document.querySelector('#adhkar'),notifyBtn=document.querySelector('#notifyBtn'),nextPrayer=document.querySelector('#nextPrayer'),progressText=document.querySelector('#progressText'),progressLabel=document.querySelector('#progressLabel'),progressRing=document.querySelector('.progress-ring');
 let mode=localStorage.getItem('thakir-mode')||'morning';
 const welcome=document.querySelector('#welcome');
+// Reset all dhikr counts automatically when a new local calendar day starts.
+function resetDailyCounts(){
+  const today=new Date().toLocaleDateString('en-CA');
+  const savedDay=localStorage.getItem('thakir-count-date');
+  if(savedDay!==today){
+    for(let i=localStorage.length-1;i>=0;i--){
+      const key=localStorage.key(i);
+      if(key && (key.startsWith('count-') || key.startsWith('done-'))) localStorage.removeItem(key);
+    }
+    localStorage.setItem('thakir-count-date',today);
+  }
+}
+resetDailyCounts();
 function targetCount(benefit=''){const s=String(benefit).trim();if(/مائة/.test(s))return 100;if(/عشر/.test(s))return 10;if(/سبع/.test(s))return 7;if(/أربع/.test(s))return 4;if(/ثلاث/.test(s))return 3;if(/مرتين|مرتان/.test(s))return 2;return 1}
 function getCount(m,i){const key=`count-${m}-${i}`,saved=Number.parseInt(localStorage.getItem(key),10);if(Number.isFinite(saved)&&saved>=0)return saved;if(localStorage.getItem(`done-${m}-${i}`)==='1'){const target=targetCount((m==='morning'?MORNING:EVENING)[i]?.benefit);localStorage.setItem(key,String(target));return target}return 0}
 function stats(){const arr=mode==='morning'?MORNING:EVENING;let done=0,total=0;arr.forEach((z,i)=>{const t=targetCount(z.benefit);total+=t;done+=Math.min(getCount(mode,i),t)});return{done,total,pct:total?Math.round(done/total*100):0}}
