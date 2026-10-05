@@ -1,1 +1,38 @@
-<!doctype html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#d8d3c8"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="manifest" href="manifest.json"><title>ذَكِّر</title><link rel="stylesheet" href="style.css"></head><body class="morning"><main><header><div class="brand">ذَكِّر</div><div class="subtitle">أذكار الصباح والمساء</div><div class="tabs"><button id="morningTab" class="active">الصباح</button><button id="eveningTab">المساء</button></div></header><section id="prayerInfo" class="prayer-info"><span id="nextPrayer">جاري حساب مواقيت الصلاة…</span><button id="notifyBtn" aria-label="تفعيل الإشعارات">🔔</button></section><section id="adhkar"></section></main><script src="data.js"></script><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#d8d3c8"><meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="manifest" href="manifest.json">
+<title>ذَكِّر</title><link rel="stylesheet" href="style.css">
+</head>
+<body class="morning">
+<div id="welcome" class="welcome-screen" aria-hidden="true">
+  <div class="welcome-glow"></div>
+  <div class="welcome-card">
+    <div class="welcome-icon">ذ</div>
+    <div class="eyebrow">مساحة هادئة للذكر</div>
+    <h1>ذَكِّر</h1>
+    <p>خذ لحظة هادئة، وابدأ أذكارك بدون استعجال.</p>
+    <button id="startBtn" class="primary-action">ابدأ أذكاري <span>←</span></button>
+  </div>
+</div>
+<main>
+<header class="hero">
+  <div class="topbar"><div><div class="brand">ذَكِّر</div><div class="subtitle">أذكارك اليومية، بهدوء.</div></div><button id="settingsBtn" class="icon-btn" aria-label="الإعدادات">⚙︎</button></div>
+  <div class="hero-copy"><span id="greeting">صباح الخير</span><h2 id="heroTitle">ابدأ صباحك بالذكر</h2><p>وقت قصير، أثر كبير.</p></div>
+  <div class="tabs"><button id="morningTab" class="active">الصباح <small>☀</small></button><button id="eveningTab">المساء <small>☾</small></button></div>
+</header>
+<section class="daily-card">
+  <div class="daily-main"><span class="mini-label">مواقيت اليوم</span><strong id="nextPrayer">جاري حساب مواقيت الصلاة…</strong></div>
+  <div class="daily-progress"><div class="progress-ring"><span id="progressText">0%</span></div><div><span class="mini-label">إنجازك</span><strong id="progressLabel">ابدأ أول ذكر</strong></div></div>
+</section>
+<section class="quick-actions">
+  <button id="continueBtn"><span>↗</span><div><b>تابع أذكاري</b><small>أكمل من حيث توقفت</small></div></button>
+  <button id="notifyBtn"><span>♧</span><div><b>التذكيرات</b><small id="notifyStatus">فعّل إشعارات الأذكار</small></div></button>
+</section>
+<section id="adhkar"></section>
+</main>
+<div id="settingsModal" class="modal" aria-hidden="true"><div class="modal-sheet"><button id="closeSettings" class="close-btn">×</button><span class="eyebrow">الإعدادات</span><h3>خلّ ذَكِّر على طريقتك</h3><p>الإشعارات الحقيقية للفجر والعصر ستعمل بعد ربط خدمة Push في الخطوة التالية.</p><div class="setting-row"><div><b>أذكار الصباح</b><small>تذكير عند الفجر</small></div><label class="switch"><input id="morningNotify" type="checkbox" checked><span></span></label></div><div class="setting-row"><div><b>أذكار المساء</b><small>تذكير عند العصر</small></div><label class="switch"><input id="eveningNotify" type="checkbox" checked><span></span></label></div></div></div>
+<script src="data.js"></script><script src="app.js"></script>
+</body></html>
