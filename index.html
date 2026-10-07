@@ -10,41 +10,16 @@
 
 <style>
 *{box-sizing:border-box}
-html,body{min-height:100%;background:#050b1d!important}
+html,body{margin:0;min-height:100%;background:#050b1d}
 body{
-  margin:0;
-  position:relative;
-  overflow-x:hidden;
   color:#f4f7f5;
   font-family:-apple-system,BlinkMacSystemFont,"SF Arabic","Geeza Pro",sans-serif;
-  background:#050b1d;
-}
-body::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  z-index:-3;
-  pointer-events:none;
+  overflow-x:hidden;
   background:
-    radial-gradient(circle at 78% 16%,rgba(255,244,190,.16) 0 2px,transparent 3px),
-    radial-gradient(circle at 18% 22%,rgba(160,190,255,.14) 0 1px,transparent 2px),
-    linear-gradient(180deg,#06112d 0%,#08152e 52%,#050a1b 100%);
+    linear-gradient(180deg,#050a1b 0%,#07122a 48%,#050b1d 100%);
 }
-header{
-  position:relative;
-  z-index:3;
-  padding:28px 18px 16px;
-  text-align:center;
-  position:sticky;
-  top:0;
-  background:rgba(5,11,29,.78);
-  backdrop-filter:blur(12px);
-  z-index:3;
-  border-bottom:1px solid rgba(100,125,180,.25);
-}
-h1{margin:0;font-size:32px;color:#fff5c9}
-p{color:#aab7b0}
 
+/* ===== Animated night background ===== */
 .night-sky{
   position:fixed;
   inset:0;
@@ -52,26 +27,42 @@ p{color:#aab7b0}
   pointer-events:none;
   overflow:hidden;
 }
+.night-sky::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 78% 18%,rgba(255,245,200,.09),transparent 18%),
+    linear-gradient(180deg,rgba(4,10,27,.05),rgba(3,7,20,.28));
+}
+.night-stars{
+  position:absolute;
+  inset:-12px;
+  opacity:.55;
+  background-image:
+    radial-gradient(circle,rgba(255,255,255,.75) 0 1px,transparent 1.8px),
+    radial-gradient(circle,rgba(160,190,255,.55) 0 1px,transparent 1.8px);
+  background-size:137px 173px,211px 149px;
+  background-position:18px 23px,77px 91px;
+  animation:starsDrift 22s ease-in-out infinite;
+}
+@keyframes starsDrift{
+  0%,100%{transform:translate3d(0,0,0)}
+  50%{transform:translate3d(-9px,5px,0)}
+}
+
 .night-moon{
   position:absolute;
-  top:8vh;
-  right:9vw;
+  top:86px;
+  right:62px;
   width:92px;
   height:92px;
   border-radius:50%;
-  background:#fff5c9;
-  box-shadow:0 0 28px rgba(255,244,190,.18);
+  background:#fff4c2;
+  box-shadow:0 0 28px rgba(255,244,194,.18);
   animation:moonFloat 5s ease-in-out infinite,moonGlow 3.5s ease-in-out infinite;
 }
-@keyframes moonFloat{
-  0%,100%{transform:translateY(0) rotate(0deg)}
-  50%{transform:translateY(8px) rotate(2deg)}
-}
-@keyframes moonGlow{
-  0%,100%{box-shadow:0 0 24px rgba(255,244,190,.16)}
-  50%{box-shadow:0 0 42px rgba(255,244,190,.32)}
-}
-.night-moon:after{
+.night-moon::after{
   content:"";
   position:absolute;
   top:-7px;
@@ -79,340 +70,197 @@ p{color:#aab7b0}
   width:92px;
   height:92px;
   border-radius:50%;
-  background:#07122d;
+  background:#07122a;
 }
-.night-stars{
-  position:absolute;
-  animation:starsDrift 18s linear infinite;
-  inset:0;
-  background-image:
-    radial-gradient(circle,rgba(255,255,255,.7) 0 1px,transparent 1.8px),
-    radial-gradient(circle,rgba(190,205,255,.55) 0 1px,transparent 1.8px);
-  background-size:137px 173px,211px 149px;
-  background-position:18px 23px,77px 91px;
-  opacity:.42;
+@keyframes moonFloat{
+  0%,100%{transform:translate3d(0,0,0) rotate(0)}
+  50%{transform:translate3d(-3px,8px,0) rotate(2deg)}
 }
+@keyframes moonGlow{
+  0%,100%{box-shadow:0 0 24px rgba(255,244,194,.16)}
+  50%{box-shadow:0 0 46px rgba(255,244,194,.32)}
+}
+
+/* Shooting stars: head moves down-left, tail stays behind upper-right. */
 .meteor{
   position:absolute;
-  width:2px;
-  height:2px;
+  width:4px;
+  height:4px;
   border-radius:50%;
   background:#fff;
   opacity:0;
-  box-shadow:0 0 5px 1px rgba(255,255,255,.9);
+  box-shadow:0 0 8px 2px rgba(255,255,255,.95);
 }
-.meteor:after{
+.meteor::after{
   content:"";
   position:absolute;
-  right:1px;
-  top:0;
-  width:80px;
-  height:1px;
+  left:1px;
+  top:1px;
+  width:95px;
+  height:2px;
+  border-radius:2px;
   transform:rotate(-32deg);
-  transform-origin:right center;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.75));
+  transform-origin:left center;
+  background:linear-gradient(90deg,rgba(255,255,255,.82),rgba(255,255,255,.12),transparent);
 }
-.m1{top:18%;right:-12%;animation:meteor1 7s linear infinite 1s}
-.m2{top:34%;right:-18%;animation:meteor2 10s linear infinite 4s}
-.m3{top:51%;right:-10%;animation:meteor1 8s linear infinite 6s}
-@keyframes starsDrift{0%{transform:translate(0,0)}50%{transform:translate(-8px,5px)}100%{transform:translate(0,0)}}
-@keyframes meteor1{
-  0%,78%{opacity:0;transform:translate(0,0)}
-  80%{opacity:.85}
-  91%{opacity:.75;transform:translate(-55vw,32vh)}
-  100%{opacity:0;transform:translate(-65vw,38vh)}
+.m1{top:17%;right:-8%;animation:shoot1 8s linear infinite 1.5s}
+.m2{top:32%;right:-14%;animation:shoot2 11s linear infinite 4.5s}
+.m3{top:48%;right:-10%;animation:shoot1 9s linear infinite 7s}
+
+@keyframes shoot1{
+  0%,76%{opacity:0;transform:translate3d(0,0,0) scale(.65)}
+  78%{opacity:1;transform:translate3d(0,0,0) scale(1)}
+  90%{opacity:.9;transform:translate3d(-55vw,32vh,0) scale(1)}
+  100%{opacity:0;transform:translate3d(-68vw,40vh,0) scale(.7)}
 }
-@keyframes meteor2{
-  0%,80%{opacity:0;transform:translate(0,0)}
-  82%{opacity:.65}
-  93%{opacity:.55;transform:translate(-48vw,27vh)}
-  100%{opacity:0;transform:translate(-57vw,32vh)}
+@keyframes shoot2{
+  0%,78%{opacity:0;transform:translate3d(0,0,0) scale(.65)}
+  80%{opacity:1;transform:translate3d(0,0,0) scale(1)}
+  92%{opacity:.8;transform:translate3d(-48vw,27vh,0) scale(1)}
+  100%{opacity:0;transform:translate3d(-60vw,34vh,0) scale(.7)}
 }
-@media (prefers-reduced-motion:reduce){
-  .meteor{animation:none;display:none}
+
+/* ===== App layer ===== */
+header{
+  position:relative;
+  z-index:3;
+  padding:34px 18px 22px;
+  text-align:center;
+  background:linear-gradient(180deg,rgba(5,10,27,.74),rgba(5,10,27,.48));
+  backdrop-filter:blur(3px);
+  border-bottom:1px solid rgba(105,130,180,.22);
 }
+h1{
+  margin:0;
+  font-size:38px;
+  color:#57d9a0;
+  text-shadow:0 0 18px rgba(87,217,160,.12);
+}
+header p{color:#aab7c5;font-size:18px;margin:10px 0 0}
 
 .tabs{
   position:relative;
   z-index:3;
   display:flex;
-  gap:8px;
-  padding:12px 14px;
-  position:sticky;
-  top:92px;
-  background:rgba(5,11,29,.72);
-  backdrop-filter:blur(10px);
-  z-index:2;
+  gap:14px;
+  padding:26px 14px 14px;
+  background:rgba(5,10,27,.66);
+  backdrop-filter:blur(7px);
 }
 .tab{
   flex:1;
-  border:1px solid #304a70;
-  background:#0a1325;
+  border:1px solid #2d527e;
+  background:#081328;
   color:#b9c8d8;
-  border-radius:14px;
-  padding:12px;
-  font-size:17px;
+  border-radius:26px;
+  padding:18px 10px;
+  font-size:20px;
+  -webkit-tap-highlight-color:transparent;
+  transition:transform .14s ease,background .2s ease,border-color .2s ease,box-shadow .2s ease;
 }
 .tab.active{
-  background:#163b54;
+  background:#173f59;
   color:#fff;
-  border-color:#fff5c9;
+  border-color:#fff0bb;
+  box-shadow:0 0 18px rgba(255,240,187,.08);
 }
+.tab:active{transform:scale(.97)}
+
 .progress{
   position:relative;
   z-index:3;
-  margin:0 14px 12px;
-  height:8px;
-  background:#142033;
-  border-radius:9px;
+  margin:10px 14px 16px;
+  height:9px;
+  background:#14233b;
+  border-radius:99px;
   overflow:hidden;
 }
 .bar{
   height:100%;
-  background:#57d9a0;
   width:0;
+  background:linear-gradient(90deg,#57d9a0,#b6f0d2);
+  border-radius:99px;
+  transition:width .35s ease;
 }
-.list{position:relative;z-index:2;padding:0 14px 40px}
-.card{
-  background:linear-gradient(145deg,rgba(15,28,55,.9),rgba(7,14,31,.92));
-  border:1px solid rgba(100,125,180,.28);
-  border-radius:18px;
-  margin:12px 0;
-  padding:17px;
-  box-shadow:0 5px 20px #0008;
-}
-.top{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.num{
-  width:34px;height:34px;
-  border:1px solid #57d9a0;
-  border-radius:50%;
-  display:grid;
-  place-items:center;
-  color:#57d9a0;
-  font-weight:700;
-}
-.count{
-  color:#57d9a0;
-  border:1px solid #276c48;
-  border-radius:20px;
-  padding:5px 10px;
-  font-size:13px;
-  white-space:nowrap;
-}
-.title{font-weight:700;color:#fff5c9;font-size:17px;flex:1}
-.text{font-size:20px;line-height:2.05;margin:15px 0 12px;white-space:pre-wrap}
-.ref{color:#8e9b94;font-size:12px;margin-bottom:10px}
-.btn{
-  width:100%;
-  border:0;
-  border-radius:13px;
-  background:#163e3b;
-  color:#fff;
-  padding:13px;
-  font-size:16px;
-}
-.btn.done{background:#2b7b50}
-.empty{text-align:center;color:#8e9b94;padding:30px}
-.small{font-size:13px;color:#7f8b85}
 
-.theme-toggle{
-  display:flex;
-  gap:8px;
-  margin:12px auto;
-  max-width:720px;
-  justify-content:center;
+.list{
   position:relative;
-  z-index:4;
-}
-.theme-toggle button{
-  border:1px solid #57d9a0;
-  background:#0d1729;
-  color:#fff;
-  border-radius:12px;
-  padding:10px 18px;
-}
-</style>
-
-<script>
-function setTheme(mode){
-  document.body.classList.toggle('evening',mode==='evening');
-  localStorage.setItem('thakir-theme',mode);
-}
-function setupTheme(){
-  const saved=localStorage.getItem('thakir-theme')||'evening';
-  setTheme(saved);
-}
-window.addEventListener('DOMContentLoaded',setupTheme);
-</script>
-
-<style id="interactive-night-v3">
-/* Keep the animated sky behind the app, but visible. */
-.night-sky{z-index:0;transition:transform .25s ease-out}
-header,.tabs,.progress,.list{position:relative}
-header{z-index:4}.tabs{z-index:4}.progress{z-index:3}.list{z-index:2}
-
-/* Moon animation */
-.night-moon{
-  animation:moonFloat 5s ease-in-out infinite,moonGlow 3.2s ease-in-out infinite;
-  transition:transform .25s ease-out;
-}
-@keyframes moonFloat{
-  0%,100%{transform:translate3d(0,0,0) rotate(0deg)}
-  50%{transform:translate3d(0,8px,0) rotate(2deg)}
-}
-@keyframes moonGlow{
-  0%,100%{box-shadow:0 0 24px rgba(255,244,190,.16)}
-  50%{box-shadow:0 0 44px rgba(255,244,190,.34)}
-}
-
-/* Stars slowly drift */
-.night-stars{animation:starsDrift 20s ease-in-out infinite}
-@keyframes starsDrift{
-  0%,100%{transform:translate3d(0,0,0)}
-  50%{transform:translate3d(-8px,5px,0)}
-}
-
-/* Meteors: sudden appearance -> streak -> disappear */
-.meteor{will-change:transform,opacity}
-.m1{animation:meteor1 7s linear infinite 1s}
-.m2{animation:meteor2 10s linear infinite 4s}
-.m3{animation:meteor1 8s linear infinite 6s}
-@keyframes meteor1{
-  0%,74%{opacity:0;transform:translate3d(0,0,0) scale(.6)}
-  76%{opacity:1;transform:translate3d(0,0,0) scale(1)}
-  89%{opacity:.85;transform:translate3d(-55vw,32vh,0) scale(1)}
-  100%{opacity:0;transform:translate3d(-65vw,38vh,0) scale(.7)}
-}
-@keyframes meteor2{
-  0%,77%{opacity:0;transform:translate3d(0,0,0) scale(.6)}
-  79%{opacity:.95;transform:translate3d(0,0,0) scale(1)}
-  92%{opacity:.7;transform:translate3d(-48vw,27vh,0) scale(1)}
-  100%{opacity:0;transform:translate3d(-57vw,32vh,0) scale(.7)}
-}
-
-/* Tap feedback */
-.btn,.tab,.counter-btn{
-  -webkit-tap-highlight-color:transparent;
-  transition:transform .12s ease,filter .12s ease,box-shadow .12s ease;
-}
-.btn:active,.tab:active,.counter-btn:active{
-  transform:scale(.96);
-  filter:brightness(1.18);
+  z-index:2;
+  padding:0 14px 45px;
 }
 .card{
-  transform:translateZ(0);
-  transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease;
+  background:linear-gradient(145deg,rgba(15,29,54,.94),rgba(7,14,30,.95));
+  border:1px solid rgba(93,125,172,.3);
+  border-radius:20px;
+  margin:14px 0;
+  padding:18px;
+  box-shadow:0 8px 25px rgba(0,0,0,.28);
+  transition:transform .16s ease,box-shadow .2s ease,border-color .2s ease;
+  -webkit-tap-highlight-color:transparent;
 }
 .card.pressed{
   transform:scale(.985);
-  box-shadow:0 2px 12px #0009;
+  box-shadow:0 3px 12px rgba(0,0,0,.35);
 }
 .card.completed{
-  animation:completedPop .35s ease;
+  animation:donePop .38s ease;
+  border-color:rgba(87,217,160,.6);
 }
-@keyframes completedPop{
+@keyframes donePop{
   0%{transform:scale(1)}
   50%{transform:scale(1.018)}
   100%{transform:scale(1)}
 }
-
-/* Small interactive glow following the user's finger. */
-body{--mx:50%;--my:35%}
-body::after{
-  content:"";
-  position:fixed;
-  left:var(--mx);
-  top:var(--my);
-  width:180px;
-  height:180px;
-  transform:translate(-50%,-50%);
-  border-radius:50%;
-  pointer-events:none;
-  z-index:1;
-  background:radial-gradient(circle,rgba(87,217,160,.08),transparent 68%);
-  transition:left .12s ease-out,top .12s ease-out;
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.num{
+  width:36px;height:36px;border:1px solid #57d9a0;border-radius:50%;
+  display:grid;place-items:center;color:#57d9a0;font-weight:700
 }
+.title{font-weight:700;color:#fff0bb;font-size:18px;flex:1}
+.count{
+  color:#57d9a0;border:1px solid #276c48;border-radius:20px;
+  padding:6px 10px;font-size:13px;white-space:nowrap
+}
+.text{
+  font-size:20px;line-height:2.05;margin:16px 0 12px;
+  white-space:pre-wrap;cursor:pointer;
+}
+.ref{color:#8e9b94;font-size:12px;margin-bottom:10px}
+.btn{
+  width:100%;border:0;border-radius:14px;background:#163e3b;color:#fff;
+  padding:14px;font-size:17px;cursor:pointer;
+  transition:transform .12s ease,filter .12s ease,background .2s ease;
+}
+.btn:active{transform:scale(.97);filter:brightness(1.16)}
+.btn.done{background:#2b7b50}
 
-/* Press burst */
 .tap-burst{
   position:fixed;
-  width:8px;height:8px;
-  border-radius:50%;
-  pointer-events:none;
-  z-index:20;
-  background:#57d9a0;
-  box-shadow:0 0 12px rgba(87,217,160,.9);
-  animation:tapBurst .55s ease-out forwards;
+  width:9px;height:9px;border-radius:50%;
+  pointer-events:none;z-index:20;background:#57d9a0;
+  box-shadow:0 0 14px rgba(87,217,160,.95);
+  animation:tapBurst .5s ease-out forwards;
 }
 @keyframes tapBurst{
   0%{opacity:1;transform:translate(-50%,-50%) scale(.5)}
-  100%{opacity:0;transform:translate(-50%,-50%) scale(9)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(8)}
 }
-@media (prefers-reduced-motion:reduce){
-  .night-moon,.night-stars,.meteor,.card,body::after{animation:none;transition:none}
+
+@media(max-width:600px){
+  .night-moon{top:74px;right:42px;width:76px;height:76px}
+  .night-moon::after{width:76px;height:76px}
+}
+@media(prefers-reduced-motion:reduce){
+  .night-moon,.night-stars,.meteor{animation:none}
   .tap-burst{display:none}
 }
 </style>
-
-<script id="interactive-night-v3-js">
-(function(){
-  const root=document.documentElement;
-  const body=document.body;
-  const sky=document.querySelector('.night-sky');
-  const moon=document.querySelector('.night-moon');
-
-  function move(x,y){
-    const px=Math.max(0,Math.min(1,x/window.innerWidth));
-    const py=Math.max(0,Math.min(1,y/window.innerHeight));
-    body.style.setProperty('--mx',(px*100)+'%');
-    body.style.setProperty('--my',(py*100)+'%');
-    if(sky) sky.style.transform=`translate3d(${(px-.5)*-8}px,${(py-.5)*-5}px,0)`;
-    if(moon) moon.style.marginRight=((px-.5)*-10)+'px';
-  }
-
-  window.addEventListener('pointermove',e=>move(e.clientX,e.clientY),{passive:true});
-
-  function burst(x,y){
-    const b=document.createElement('span');
-    b.className='tap-burst';
-    b.style.left=x+'px';
-    b.style.top=y+'px';
-    document.body.appendChild(b);
-    setTimeout(()=>b.remove(),600);
-  }
-
-  window.addEventListener('pointerdown',e=>{
-    burst(e.clientX,e.clientY);
-  },{passive:true});
-
-  // Gentle press animation for every dhikr card.
-  document.addEventListener('pointerdown',e=>{
-    const card=e.target.closest('.card');
-    if(card) card.classList.add('pressed');
-  },{passive:true});
-  document.addEventListener('pointerup',()=>{
-    document.querySelectorAll('.card.pressed').forEach(c=>c.classList.remove('pressed'));
-  },{passive:true});
-  document.addEventListener('pointercancel',()=>{
-    document.querySelectorAll('.card.pressed').forEach(c=>c.classList.remove('pressed'));
-  },{passive:true});
-
-  // Small device-motion parallax when the browser provides orientation data.
-  window.addEventListener('deviceorientation',e=>{
-    if(e.gamma==null||e.beta==null)return;
-    const x=Math.max(-1,Math.min(1,e.gamma/30));
-    const y=Math.max(-1,Math.min(1,(e.beta-45)/30));
-    if(sky) sky.style.transform=`translate3d(${x*-10}px,${y*-6}px,0)`;
-    if(moon) moon.style.marginRight=(x*-14)+'px';
-  },{passive:true});
-})();
-</script>
 </head>
 
 <body>
 <div class="night-sky" aria-hidden="true">
-  <div class="night-moon"></div>
   <div class="night-stars"></div>
+  <div class="night-moon"></div>
   <i class="meteor m1"></i>
   <i class="meteor m2"></i>
   <i class="meteor m3"></i>
@@ -433,60 +281,148 @@ body::after{
 
 <script src="data.js"></script>
 <script>
-let mode='morning';
-const state=JSON.parse(localStorage.getItem('dhikrState')||'{}');
-const list=document.getElementById('list');
-const bar=document.getElementById('bar');
+(function(){
+  const TODAY=new Date().toISOString().slice(0,10);
+  const savedDay=localStorage.getItem('thakir-day');
+  if(savedDay!==TODAY){
+    localStorage.removeItem('dhikrState');
+    localStorage.setItem('thakir-day',TODAY);
+  }
 
-function key(){return mode==='morning'?'m':'e'}
+  let mode='morning';
+  const state=JSON.parse(localStorage.getItem('dhikrState')||'{}');
+  const list=document.getElementById('list');
+  const bar=document.getElementById('bar');
+  const morning=document.getElementById('morning');
+  const evening=document.getElementById('evening');
 
-function render(){
-  const arr=DHIKR[mode],done=state[key()]||{};
-  list.innerHTML='';
-  arr.forEach((d,i)=>{
-    const cur=done[i]||0;
+  function key(){return mode==='morning'?'m':'e'}
+
+  function save(){
+    localStorage.setItem('dhikrState',JSON.stringify(state));
+  }
+
+  function updateProgress(arr,done){
+    const total=arr.length;
+    const completed=arr.reduce((n,d,i)=>n+((done[i]||0)>=d.count?1:0),0);
+    bar.style.width=(total?(completed/total*100):0)+'%';
+  }
+
+  function advance(i,card,d){
+    const done=state[key()]||(state[key()]={});
+    let cur=done[i]||0;
+    if(cur>=d.count){
+      cur=0;
+    }else{
+      cur++;
+    }
+    done[i]=cur;
+    save();
+
+    const btn=card.querySelector('.btn');
+    const counter=card.querySelector('.count');
     const complete=cur>=d.count;
-    const c=document.createElement('article');
-    c.className='card';
-    c.innerHTML=`
-      <div class="top">
-        <span class="num">${i+1}</span>
-        <div class="title">${d.title||'ذِكر'}</div>
-        <span class="count">${d.count===1?'مرة واحدة':d.count+' مرات'}</span>
-      </div>
-      <div class="text">${d.text}</div>
-      ${d.ref?`<div class="ref">${d.ref}</div>`:''}
-      <button class="btn ${complete?'done':''}">
-        ${complete?'✓ تم':'اضغط للتسبيح'} ${d.count>1&&!complete?`(${cur}/${d.count})`:''}
-      </button>`;
-    c.querySelector('.btn').onclick=()=>{
-      done[i]=complete?0:cur+1;
-      state[key()]=done;
-      localStorage.setItem('dhikrState',JSON.stringify(state));
-      render();
-    };
-    list.appendChild(c);
-  });
-  const n=arr.length;
-  const p=Object.values(done).filter((v,i)=>v>=arr[i].count).length;
-  bar.style.width=(p/n*100)+'%';
-}
 
-function setMode(m){
-  mode=m;
-  document.getElementById('morning').classList.toggle('active',m==='morning');
-  document.getElementById('evening').classList.toggle('active',m==='evening');
+    btn.textContent=complete?'✓ تم':`اضغط للتسبيح${d.count>1?` (${cur}/${d.count})`:''}`;
+    btn.classList.toggle('done',complete);
+    counter.textContent=complete?'تم':(d.count===1?'مرة واحدة':`${d.count} مرات`);
+
+    card.classList.remove('completed');
+    void card.offsetWidth;
+    card.classList.add('completed');
+
+    updateProgress(DHIKR[mode],done);
+  }
+
+  function render(){
+    const arr=DHIKR[mode];
+    const done=state[key()]||{};
+    list.innerHTML='';
+
+    arr.forEach((d,i)=>{
+      const cur=done[i]||0;
+      const complete=cur>=d.count;
+
+      const card=document.createElement('article');
+      card.className='card';
+      card.innerHTML=`
+        <div class="top">
+          <span class="num">${i+1}</span>
+          <div class="title">${d.title||'ذِكر'}</div>
+          <span class="count">${complete?'تم':(d.count===1?'مرة واحدة':d.count+' مرات')}</span>
+        </div>
+        <div class="text">${d.text}</div>
+        ${d.ref?`<div class="ref">${d.ref}</div>`:''}
+        <button class="btn ${complete?'done':''}">${complete?'✓ تم':'اضغط للتسبيح'} ${d.count>1&&!complete?`(${cur}/${d.count})`:''}</button>
+      `;
+
+      const btn=card.querySelector('.btn');
+      const text=card.querySelector('.text');
+
+      btn.addEventListener('click',e=>{
+        e.stopPropagation();
+        advance(i,card,d);
+      });
+
+      // Tapping the dhikr text itself also counts.
+      text.addEventListener('click',()=>{
+        advance(i,card,d);
+      });
+
+      list.appendChild(card);
+    });
+
+    updateProgress(arr,done);
+  }
+
+  function setMode(m){
+    mode=m;
+    morning.classList.toggle('active',m==='morning');
+    evening.classList.toggle('active',m==='evening');
+    render();
+  }
+
+  morning.onclick=()=>setMode('morning');
+  evening.onclick=()=>setMode('evening');
+
+  // Press interaction on cards + tap burst.
+  document.addEventListener('pointerdown',e=>{
+    const card=e.target.closest('.card');
+    if(card)card.classList.add('pressed');
+
+    if(e.target.closest('.btn,.text,.tab')){
+      const burst=document.createElement('span');
+      burst.className='tap-burst';
+      burst.style.left=e.clientX+'px';
+      burst.style.top=e.clientY+'px';
+      document.body.appendChild(burst);
+      setTimeout(()=>burst.remove(),520);
+    }
+  },{passive:true});
+
+  document.addEventListener('pointerup',()=>{
+    document.querySelectorAll('.card.pressed').forEach(c=>c.classList.remove('pressed'));
+  },{passive:true});
+
+  document.addEventListener('pointercancel',()=>{
+    document.querySelectorAll('.card.pressed').forEach(c=>c.classList.remove('pressed'));
+  },{passive:true});
+
+  // Subtle parallax from finger movement.
+  const sky=document.querySelector('.night-sky');
+  const moon=document.querySelector('.night-moon');
+  window.addEventListener('pointermove',e=>{
+    const x=(e.clientX/window.innerWidth-.5);
+    const y=(e.clientY/window.innerHeight-.5);
+    sky.style.transform=`translate3d(${x*-7}px,${y*-4}px,0)`;
+    moon.style.marginRight=(x*-10)+'px';
+  },{passive:true});
+
   render();
-}
 
-document.getElementById('morning').onclick=()=>setMode('morning');
-document.getElementById('evening').onclick=()=>setMode('evening');
-
-render();
-
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js');
-}
+  // Keep the existing service-worker registration.
+  if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+})();
 </script>
 </body>
 </html>
