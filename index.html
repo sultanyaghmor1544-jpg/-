@@ -1,39 +1,312 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#06152b"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black">
-<link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="manifest" href="manifest.json">
-<title>ذكر</title><link rel="stylesheet" href="style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050b1d">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>ذَكِّر</title>
+
+<style>
+*{box-sizing:border-box}
+html,body{min-height:100%;background:#050b1d!important}
+body{
+  margin:0;
+  position:relative;
+  overflow-x:hidden;
+  color:#f4f7f5;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Arabic","Geeza Pro",sans-serif;
+  background:#050b1d;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-3;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 78% 16%,rgba(255,244,190,.16) 0 2px,transparent 3px),
+    radial-gradient(circle at 18% 22%,rgba(160,190,255,.14) 0 1px,transparent 2px),
+    linear-gradient(180deg,#06112d 0%,#08152e 52%,#050a1b 100%);
+}
+header{
+  padding:28px 18px 16px;
+  text-align:center;
+  position:sticky;
+  top:0;
+  background:rgba(5,11,29,.78);
+  backdrop-filter:blur(12px);
+  z-index:3;
+  border-bottom:1px solid rgba(100,125,180,.25);
+}
+h1{margin:0;font-size:32px;color:#fff5c9}
+p{color:#aab7b0}
+
+.night-sky{
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  pointer-events:none;
+  overflow:hidden;
+}
+.night-moon{
+  position:absolute;
+  top:8vh;
+  right:9vw;
+  width:92px;
+  height:92px;
+  border-radius:50%;
+  background:#fff5c9;
+  box-shadow:0 0 28px rgba(255,244,190,.18);
+}
+.night-moon:after{
+  content:"";
+  position:absolute;
+  top:-7px;
+  right:-17px;
+  width:92px;
+  height:92px;
+  border-radius:50%;
+  background:#07122d;
+}
+.night-stars{
+  position:absolute;
+  inset:0;
+  background-image:
+    radial-gradient(circle,rgba(255,255,255,.7) 0 1px,transparent 1.8px),
+    radial-gradient(circle,rgba(190,205,255,.55) 0 1px,transparent 1.8px);
+  background-size:137px 173px,211px 149px;
+  background-position:18px 23px,77px 91px;
+  opacity:.42;
+}
+.meteor{
+  position:absolute;
+  width:2px;
+  height:2px;
+  border-radius:50%;
+  background:#fff;
+  opacity:0;
+  box-shadow:0 0 5px 1px rgba(255,255,255,.9);
+}
+.meteor:after{
+  content:"";
+  position:absolute;
+  right:1px;
+  top:0;
+  width:80px;
+  height:1px;
+  transform:rotate(-32deg);
+  transform-origin:right center;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.75));
+}
+.m1{top:18%;right:-12%;animation:meteor1 9s linear infinite 2s}
+.m2{top:34%;right:-18%;animation:meteor2 13s linear infinite 6s}
+.m3{top:51%;right:-10%;animation:meteor1 11s linear infinite 9s}
+@keyframes meteor1{
+  0%,78%{opacity:0;transform:translate(0,0)}
+  80%{opacity:.85}
+  91%{opacity:.75;transform:translate(-55vw,32vh)}
+  100%{opacity:0;transform:translate(-65vw,38vh)}
+}
+@keyframes meteor2{
+  0%,80%{opacity:0;transform:translate(0,0)}
+  82%{opacity:.65}
+  93%{opacity:.55;transform:translate(-48vw,27vh)}
+  100%{opacity:0;transform:translate(-57vw,32vh)}
+}
+@media (prefers-reduced-motion:reduce){
+  .meteor{animation:none;display:none}
+}
+
+.tabs{
+  display:flex;
+  gap:8px;
+  padding:12px 14px;
+  position:sticky;
+  top:92px;
+  background:rgba(5,11,29,.72);
+  backdrop-filter:blur(10px);
+  z-index:2;
+}
+.tab{
+  flex:1;
+  border:1px solid #304a70;
+  background:#0a1325;
+  color:#b9c8d8;
+  border-radius:14px;
+  padding:12px;
+  font-size:17px;
+}
+.tab.active{
+  background:#163b54;
+  color:#fff;
+  border-color:#fff5c9;
+}
+.progress{
+  margin:0 14px 12px;
+  height:8px;
+  background:#142033;
+  border-radius:9px;
+  overflow:hidden;
+}
+.bar{
+  height:100%;
+  background:#57d9a0;
+  width:0;
+}
+.list{padding:0 14px 40px}
+.card{
+  background:linear-gradient(145deg,rgba(15,28,55,.9),rgba(7,14,31,.92));
+  border:1px solid rgba(100,125,180,.28);
+  border-radius:18px;
+  margin:12px 0;
+  padding:17px;
+  box-shadow:0 5px 20px #0008;
+}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.num{
+  width:34px;height:34px;
+  border:1px solid #57d9a0;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  color:#57d9a0;
+  font-weight:700;
+}
+.count{
+  color:#57d9a0;
+  border:1px solid #276c48;
+  border-radius:20px;
+  padding:5px 10px;
+  font-size:13px;
+  white-space:nowrap;
+}
+.title{font-weight:700;color:#fff5c9;font-size:17px;flex:1}
+.text{font-size:20px;line-height:2.05;margin:15px 0 12px;white-space:pre-wrap}
+.ref{color:#8e9b94;font-size:12px;margin-bottom:10px}
+.btn{
+  width:100%;
+  border:0;
+  border-radius:13px;
+  background:#163e3b;
+  color:#fff;
+  padding:13px;
+  font-size:16px;
+}
+.btn.done{background:#2b7b50}
+.empty{text-align:center;color:#8e9b94;padding:30px}
+.small{font-size:13px;color:#7f8b85}
+
+.theme-toggle{
+  display:flex;
+  gap:8px;
+  margin:12px auto;
+  max-width:720px;
+  justify-content:center;
+  position:relative;
+  z-index:4;
+}
+.theme-toggle button{
+  border:1px solid #57d9a0;
+  background:#0d1729;
+  color:#fff;
+  border-radius:12px;
+  padding:10px 18px;
+}
+</style>
+
+<script>
+function setTheme(mode){
+  document.body.classList.toggle('evening',mode==='evening');
+  localStorage.setItem('thakir-theme',mode);
+}
+function setupTheme(){
+  const saved=localStorage.getItem('thakir-theme')||'evening';
+  setTheme(saved);
+}
+window.addEventListener('DOMContentLoaded',setupTheme);
+</script>
 </head>
-<body class="morning">
-<div id="welcome" class="welcome-screen" aria-hidden="true">
-  <div class="stars"></div><div class="welcome-moon"></div><div class="welcome-horizon"></div>
-  <div class="welcome-card">
-    <div class="brand-mark"><img src="icon.svg" alt="ذكر"></div>
-    <div class="eyebrow">ذكر — لنتذكّر معًا</div>
-    <h1>ذكر</h1>
-    <p class="verse">﴿وَذَكِّرْ فَإِنَّ الذِّكْرَىٰ تَنفَعُ الْمُؤْمِنِينَ﴾</p>
-    <p class="verse-ref">[الذاريات: 55]</p>
-    <button id="startBtn" class="primary-action">ابدأ الآن <span>←</span></button>
-  </div>
+
+<body>
+<div class="night-sky" aria-hidden="true">
+  <div class="night-moon"></div>
+  <div class="night-stars"></div>
+  <i class="meteor m1"></i>
+  <i class="meteor m2"></i>
+  <i class="meteor m3"></i>
 </div>
-<main>
-<header class="hero">
-  <div class="topbar"><div><div class="brand">ذكر</div><div class="subtitle">لنتذكّر معًا.</div></div><button id="settingsBtn" class="icon-btn" aria-label="الإعدادات">⚙︎</button></div>
-  <div class="hero-copy"><span id="greeting">صباح الخير</span><h2 id="heroTitle">ابدأ صباحك بالذكر</h2><p>ذكرٌ هادئ، وأثرٌ يبقى.</p></div>
-  <div class="tabs"><button id="morningTab" class="active">الصباح <small>☀</small></button><button id="eveningTab">المساء <small>☾</small></button></div>
+
+<header>
+  <h1>ذكر</h1>
+  <p>أذكار الصباح والمساء</p>
 </header>
-<section class="daily-card">
-  <div class="daily-main"><span class="mini-label">مواقيت اليوم</span><strong id="nextPrayer">جاري حساب مواقيت الصلاة…</strong></div>
-  <div class="daily-progress"><div class="progress-ring"><span id="progressText">0%</span></div><div><span class="mini-label">إنجازك</span><strong id="progressLabel">ابدأ أول ذكر</strong></div></div>
-</section>
-<section class="quick-actions">
-  <button id="continueBtn"><span>↗</span><div><b>تابع أذكاري</b><small>أكمل من حيث توقفت</small></div></button>
-  <button id="notifyBtn"><span>♧</span><div><b>التذكيرات</b><small id="notifyStatus">فعّل إشعارات الأذكار</small></div></button>
-</section>
-<section id="adhkar"></section>
-</main>
-<div id="settingsModal" class="modal" aria-hidden="true"><div class="modal-sheet"><button id="closeSettings" class="close-btn">×</button><span class="eyebrow">الإعدادات</span><h3>خلّ ذكر على طريقتك</h3><p>الإشعارات الحقيقية للفجر والعصر ستعمل بعد إكمال ربط خدمة Push.</p><div class="setting-row"><div><b>أذكار الصباح</b><small>تذكير عند الفجر</small></div><label class="switch"><input id="morningNotify" type="checkbox" checked><span></span></label></div><div class="setting-row"><div><b>أذكار المساء</b><small>تذكير عند العصر</small></div><label class="switch"><input id="eveningNotify" type="checkbox" checked><span></span></label></div></div></div>
-<script src="data.js"></script><script src="app.js"></script>
-</body></html>
+
+<div class="tabs">
+  <button id="morning" class="tab active">أذكار الصباح</button>
+  <button id="evening" class="tab">أذكار المساء</button>
+</div>
+
+<div class="progress"><div class="bar" id="bar"></div></div>
+<main class="list" id="list"></main>
+
+<script src="data.js"></script>
+<script>
+let mode='morning';
+const state=JSON.parse(localStorage.getItem('dhikrState')||'{}');
+const list=document.getElementById('list');
+const bar=document.getElementById('bar');
+
+function key(){return mode==='morning'?'m':'e'}
+
+function render(){
+  const arr=DHIKR[mode],done=state[key()]||{};
+  list.innerHTML='';
+  arr.forEach((d,i)=>{
+    const cur=done[i]||0;
+    const complete=cur>=d.count;
+    const c=document.createElement('article');
+    c.className='card';
+    c.innerHTML=`
+      <div class="top">
+        <span class="num">${i+1}</span>
+        <div class="title">${d.title||'ذِكر'}</div>
+        <span class="count">${d.count===1?'مرة واحدة':d.count+' مرات'}</span>
+      </div>
+      <div class="text">${d.text}</div>
+      ${d.ref?`<div class="ref">${d.ref}</div>`:''}
+      <button class="btn ${complete?'done':''}">
+        ${complete?'✓ تم':'اضغط للتسبيح'} ${d.count>1&&!complete?`(${cur}/${d.count})`:''}
+      </button>`;
+    c.querySelector('.btn').onclick=()=>{
+      done[i]=complete?0:cur+1;
+      state[key()]=done;
+      localStorage.setItem('dhikrState',JSON.stringify(state));
+      render();
+    };
+    list.appendChild(c);
+  });
+  const n=arr.length;
+  const p=Object.values(done).filter((v,i)=>v>=arr[i].count).length;
+  bar.style.width=(p/n*100)+'%';
+}
+
+function setMode(m){
+  mode=m;
+  document.getElementById('morning').classList.toggle('active',m==='morning');
+  document.getElementById('evening').classList.toggle('active',m==='evening');
+  render();
+}
+
+document.getElementById('morning').onclick=()=>setMode('morning');
+document.getElementById('evening').onclick=()=>setMode('evening');
+
+render();
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js');
+}
+</script>
+</body>
+</html>
