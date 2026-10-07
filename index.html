@@ -1,461 +1,69 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#061329">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon.svg">
-<title>ذَكِّر</title>
-
-<style>
-*{box-sizing:border-box}
-:root{
-  --bg:#061329;
-  --bg2:#0a1b35;
-  --card:rgba(17,38,70,.76);
-  --card2:rgba(11,29,54,.88);
-  --text:#f8fbff;
-  --muted:#9aa9bd;
-  --purple:#8265ff;
-  --purple2:#a06cff;
-  --cyan:#83baff;
-  --gold:#fff0b9;
-  --green:#64e1a2;
-  --line:rgba(144,177,226,.18);
-}
-html,body{margin:0;min-height:100%;background:var(--bg)}
-body{
-  color:var(--text);
-  font-family:-apple-system,BlinkMacSystemFont,"SF Arabic","Geeza Pro",sans-serif;
-  overflow-x:hidden;
-}
-button{font-family:inherit}
-.app-bg{
-  position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
-  background:
-    radial-gradient(circle at 18% 28%,rgba(78,100,255,.13),transparent 25%),
-    radial-gradient(circle at 88% 48%,rgba(121,65,255,.11),transparent 25%),
-    linear-gradient(180deg,#061329 0%,#081a34 48%,#061329 100%);
-}
-.stars{
-  position:absolute;inset:-20px;
-  background-image:
-    radial-gradient(circle,rgba(255,255,255,.72) 0 1.5px,transparent 2px),
-    radial-gradient(circle,rgba(170,205,255,.65) 0 1.3px,transparent 2px);
-  background-size:137px 173px,211px 149px;
-  background-position:17px 29px,83px 91px;
-  opacity:.65;
-  animation:starsDrift 24s ease-in-out infinite;
-}
-@keyframes starsDrift{
-  0%,100%{transform:translate3d(0,0,0)}
-  50%{transform:translate3d(-10px,6px,0)}
-}
-
-/* Crescent is deliberately on the LEFT. */
-.moon{
-  position:absolute;
-  left:32px;
-  top:105px;
-  width:74px;height:74px;border-radius:50%;
-  background:#fff2bb;
-  box-shadow:0 0 34px rgba(255,242,187,.20);
-  animation:moonFloat 5s ease-in-out infinite,moonGlow 3.5s ease-in-out infinite;
-}
-.moon:after{
-  content:"";position:absolute;
-  width:74px;height:74px;border-radius:50%;
-  left:18px;top:-8px;background:#07152c;
-}
-@keyframes moonFloat{
-  0%,100%{transform:translateY(0) rotate(-2deg)}
-  50%{transform:translateY(7px) rotate(2deg)}
-}
-@keyframes moonGlow{
-  0%,100%{box-shadow:0 0 24px rgba(255,242,187,.15)}
-  50%{box-shadow:0 0 45px rgba(255,242,187,.32)}
-}
-
-/* Shooting stars: head travels from upper-right toward lower-left.
-   Tail is behind the head toward the upper-right. */
-.meteor{
-  position:absolute;width:4px;height:4px;border-radius:50%;
-  background:#fff;opacity:0;
-  box-shadow:0 0 8px 2px rgba(255,255,255,.95);
-}
-.meteor:after{
-  content:"";position:absolute;left:1px;top:1px;
-  width:92px;height:2px;border-radius:99px;
-  transform:rotate(-32deg);transform-origin:left center;
-  background:linear-gradient(90deg,rgba(255,255,255,.86),rgba(255,255,255,.18),transparent);
-}
-.m1{top:18%;right:-7%;animation:meteorA 8s linear infinite 1.5s}
-.m2{top:31%;right:-14%;animation:meteorB 11s linear infinite 5s}
-.m3{top:47%;right:-8%;animation:meteorA 9s linear infinite 8s}
-@keyframes meteorA{
-  0%,77%{opacity:0;transform:translate3d(0,0,0) scale(.6)}
-  79%{opacity:1;transform:translate3d(0,0,0) scale(1)}
-  91%{opacity:.85;transform:translate3d(-56vw,33vh,0) scale(1)}
-  100%{opacity:0;transform:translate3d(-68vw,41vh,0) scale(.65)}
-}
-@keyframes meteorB{
-  0%,79%{opacity:0;transform:translate3d(0,0,0) scale(.6)}
-  81%{opacity:.95;transform:translate3d(0,0,0) scale(1)}
-  93%{opacity:.75;transform:translate3d(-49vw,28vh,0) scale(1)}
-  100%{opacity:0;transform:translate3d(-61vw,35vh,0) scale(.65)}
-}
-
-.app{position:relative;z-index:1;max-width:760px;margin:auto;padding:18px 18px 54px}
-
-/* Top area matching the requested old interface */
-.topbar{display:flex;align-items:flex-start;justify-content:space-between;min-height:118px}
-.brand{text-align:right;padding-top:10px}
-.brand h1{
-  margin:0;color:#fff0b9;font-size:39px;line-height:1;
-  text-shadow:0 0 20px rgba(255,240,185,.08);
-}
-.brand p{margin:10px 0 0;color:#7e8da5;font-size:16px}
-.settings{
-  width:58px;height:58px;border:0;border-radius:20px;
-  background:rgba(34,58,91,.65);color:#fff;
-  font-size:26px;display:grid;place-items:center;
-  box-shadow:0 10px 25px rgba(0,0,0,.12);
-  transition:transform .15s ease,background .2s ease;
-}
-.settings:active{transform:scale(.92) rotate(-8deg);background:rgba(55,81,119,.85)}
-
-.hero{margin-top:4px;padding:4px 2px 22px;text-align:right}
-.hello{font-size:16px;color:#8798b1;margin-bottom:5px}
-.hero h2{font-size:29px;margin:0;color:#fff;font-weight:700;line-height:1.45}
-.hero p{font-size:18px;color:#98a8bf;margin:7px 0 0}
-
-.tabs{display:flex;gap:14px;margin-bottom:20px}
-.tab{
-  flex:1;border:1px solid rgba(103,137,188,.25);
-  background:rgba(19,39,68,.62);color:#e3ebf7;
-  border-radius:23px;padding:18px 10px;font-size:19px;
-  box-shadow:inset 0 1px rgba(255,255,255,.025);
-  transition:transform .14s ease,background .25s ease,box-shadow .25s ease,border-color .25s ease;
-}
-.tab.active{
-  background:linear-gradient(135deg,#7662f7,#a06cff);
-  border-color:rgba(255,255,255,.16);
-  box-shadow:0 12px 28px rgba(113,82,255,.22);
-}
-.tab:active{transform:scale(.97)}
-
-.prayer{
-  border:1px solid var(--line);
-  background:linear-gradient(135deg,rgba(18,45,81,.76),rgba(34,29,75,.66));
-  border-radius:24px;padding:17px 20px;
-  box-shadow:0 12px 30px rgba(0,0,0,.13);
-  margin-bottom:18px;
-}
-.prayer-head{color:#91a0b8;font-size:16px;margin-bottom:7px}
-.prayer-row{display:flex;align-items:center;justify-content:space-between;gap:15px}
-.prayer-time{font-size:20px;font-weight:700}
-.progress-ring{
-  width:58px;height:58px;border-radius:50%;
-  display:grid;place-items:center;
-  background:conic-gradient(var(--purple) 0deg,#233d65 0deg);
-  position:relative;flex:0 0 auto;
-}
-.progress-ring:after{
-  content:"";position:absolute;inset:7px;border-radius:50%;background:#102846;
-}
-.progress-ring span{position:relative;z-index:1;font-size:14px}
-
-.quick{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
-.quick-card{
-  border:1px solid var(--line);
-  background:rgba(17,37,65,.70);
-  border-radius:24px;padding:17px;
-  min-height:88px;
-  transition:transform .15s ease,background .2s ease;
-}
-.quick-card:active{transform:scale(.97);background:rgba(29,55,91,.82)}
-.quick-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.quick-title{font-size:20px;font-weight:700}
-.quick-sub{color:#8d9bb0;font-size:14px;margin-top:5px}
-.quick-icon{
-  width:45px;height:45px;border-radius:14px;
-  display:grid;place-items:center;
-  background:rgba(105,138,255,.18);font-size:23px;
-}
-
-/* Dhikr cards */
-.card{
-  background:linear-gradient(145deg,rgba(17,42,76,.88),rgba(11,27,51,.92));
-  border:1px solid rgba(111,146,198,.23);
-  border-radius:25px;
-  margin:15px 0;padding:20px;
-  box-shadow:0 12px 30px rgba(0,0,0,.16);
-  transition:transform .15s ease,box-shadow .2s ease,border-color .2s ease;
-}
-.card.pressed{transform:scale(.987);box-shadow:0 5px 16px rgba(0,0,0,.25)}
-.card.completed{animation:donePop .38s ease;border-color:rgba(100,225,162,.65)}
-@keyframes donePop{
-  0%{transform:scale(1)}
-  50%{transform:scale(1.018)}
-  100%{transform:scale(1)}
-}
-.top{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.num{
-  width:38px;height:38px;border-radius:50%;
-  display:grid;place-items:center;color:#b9cbeb;
-  border:1px solid rgba(130,160,207,.3);
-  background:rgba(20,47,82,.65);
-}
-.title{flex:1;font-weight:700;color:#fff0b9;font-size:18px}
-.count{
-  color:#9db5d7;border:1px solid rgba(117,150,200,.25);
-  background:rgba(14,32,58,.55);
-  border-radius:18px;padding:6px 10px;font-size:12px;white-space:nowrap
-}
-.text{
-  font-size:21px;line-height:2.15;margin:18px 0 14px;
-  white-space:pre-wrap;cursor:pointer;
-}
-.ref{color:#899ab2;font-size:12px;margin-bottom:12px}
-.btn{
-  width:100%;border:0;border-radius:16px;
-  background:linear-gradient(135deg,#214b72,#245d70);
-  color:#fff;padding:15px;font-size:17px;
-  transition:transform .12s ease,filter .12s ease,background .2s ease;
-}
-.btn.done{background:linear-gradient(135deg,#247455,#318e68)}
-.btn:active{transform:scale(.97);filter:brightness(1.15)}
-
-.tap{
-  position:fixed;width:8px;height:8px;border-radius:50%;
-  pointer-events:none;z-index:20;background:#9b8cff;
-  box-shadow:0 0 16px rgba(155,140,255,.9);
-  animation:tap .5s ease-out forwards;
-}
-@keyframes tap{
-  from{opacity:1;transform:translate(-50%,-50%) scale(.5)}
-  to{opacity:0;transform:translate(-50%,-50%) scale(8)}
-}
-
-@media(max-width:600px){
-  .app{padding:14px 18px 42px}
-  .moon{left:24px;top:93px;width:62px;height:62px}
-  .moon:after{width:62px;height:62px}
-  .brand h1{font-size:36px}
-  .hero h2{font-size:27px}
-}
-@media(prefers-reduced-motion:reduce){
-  .moon,.stars,.meteor{animation:none}
-  .tap{display:none}
-}
-</style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#06152b"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="manifest" href="manifest.json">
+<title>ذكر</title><link rel="stylesheet" href="style.css">
 </head>
-
-<body>
-<div class="app-bg" aria-hidden="true">
-  <div class="stars"></div>
-  <div class="moon"></div>
-  <i class="meteor m1"></i><i class="meteor m2"></i><i class="meteor m3"></i>
-</div>
-
-<div class="app">
-  <div class="topbar">
-    <button class="settings" id="settings" aria-label="الإعدادات">⚙︎</button>
-    <div class="brand">
-      <h1>ذكر</h1>
-      <p>لنتذكر معًا.</p>
-    </div>
+<body class="morning">
+<div id="welcome" class="welcome-screen" aria-hidden="true">
+  <div class="stars"></div><div class="welcome-moon"></div><div class="welcome-horizon"></div>
+  <div class="welcome-card">
+    <div class="brand-mark"><img src="icon.svg" alt="ذكر"></div>
+    <div class="eyebrow">ذكر — لنتذكّر معًا</div>
+    <h1>ذكر</h1>
+    <p class="verse">﴿وَذَكِّرْ فَإِنَّ الذِّكْرَىٰ تَنفَعُ الْمُؤْمِنِينَ﴾</p>
+    <p class="verse-ref">[الذاريات: 55]</p>
+    <button id="startBtn" class="primary-action">ابدأ الآن <span>←</span></button>
   </div>
-
-  <section class="hero">
-    <div class="hello" id="hello">صباح الخير</div>
-    <h2 id="heroTitle">ابدأ صباحك بالذكر</h2>
-    <p id="heroSub">ذِكرٌ هادئ، وأثرٌ يبقى.</p>
-  </section>
-
-  <div class="tabs">
-    <button class="tab" id="evening">☾ المساء</button>
-    <button class="tab active" id="morning">☀️ الصباح</button>
-  </div>
-
-  <section class="prayer">
-    <div class="prayer-head">مواقيت اليوم</div>
-    <div class="prayer-row">
-      <div class="prayer-time">الفجر 05:00&nbsp;&nbsp;•&nbsp;&nbsp;العصر 15:34</div>
-      <div class="progress-ring" id="progressRing"><span id="progressText">0%</span></div>
-    </div>
-  </section>
-
-  <section class="quick">
-    <button class="quick-card" id="continueBtn">
-      <div class="quick-top">
-        <div>
-          <div class="quick-title">تابع أذكاري</div>
-          <div class="quick-sub">أكمل من حيث توقفت</div>
-        </div>
-        <div class="quick-icon">↗</div>
-      </div>
-    </button>
-    <button class="quick-card" id="notifyBtn">
-      <div class="quick-top">
-        <div>
-          <div class="quick-title">التذكيرات</div>
-          <div class="quick-sub">فعّل إشعارات الأذكار</div>
-        </div>
-        <div class="quick-icon">♧</div>
-      </div>
-    </button>
-  </section>
-
-  <main id="list"></main>
 </div>
+<main>
+<header class="hero">
+  <div class="topbar"><div><div class="brand">ذكر</div><div class="subtitle">لنتذكّر معًا.</div></div><button id="settingsBtn" class="icon-btn" aria-label="الإعدادات">⚙︎</button></div>
+  <div class="hero-copy"><span id="greeting">صباح الخير</span><h2 id="heroTitle">ابدأ صباحك بالذكر</h2><p>ذكرٌ هادئ، وأثرٌ يبقى.</p></div>
+  <div class="tabs"><button id="morningTab" class="active">الصباح <small>☀</small></button><button id="eveningTab">المساء <small>☾</small></button></div>
+</header>
+<section class="daily-card">
+  <div class="daily-main"><span class="mini-label">مواقيت اليوم</span><strong id="nextPrayer">جاري حساب مواقيت الصلاة…</strong></div>
+  <div class="daily-progress"><div class="progress-ring"><span id="progressText">0%</span></div><div><span class="mini-label">إنجازك</span><strong id="progressLabel">ابدأ أول ذكر</strong></div></div>
+</section>
+<section class="quick-actions">
+  <button id="continueBtn"><span>↗</span><div><b>تابع أذكاري</b><small>أكمل من حيث توقفت</small></div></button>
+  <button id="notifyBtn"><span>♧</span><div><b>التذكيرات</b><small id="notifyStatus">فعّل إشعارات الأذكار</small></div></button>
+</section>
+<section id="adhkar"></section>
+</main>
+<div id="settingsModal" class="modal" aria-hidden="true"><div class="modal-sheet"><button id="closeSettings" class="close-btn">×</button><span class="eyebrow">الإعدادات</span><h3>خلّ ذكر على طريقتك</h3><p>الإشعارات الحقيقية للفجر والعصر ستعمل بعد إكمال ربط خدمة Push.</p><div class="setting-row"><div><b>أذكار الصباح</b><small>تذكير عند الفجر</small></div><label class="switch"><input id="morningNotify" type="checkbox" checked><span></span></label></div><div class="setting-row"><div><b>أذكار المساء</b><small>تذكير عند العصر</small></div><label class="switch"><input id="eveningNotify" type="checkbox" checked><span></span></label></div></div></div>
+<script src="data.js"></script><script src="app.js"></script>
 
-<script src="data.js"></script>
 <script>
+/* V15 visual interactions only — does not modify app/notification logic */
 (function(){
-  const TODAY=new Date().toISOString().slice(0,10);
-  if(localStorage.getItem('thakir-day')!==TODAY){
-    localStorage.removeItem('dhikrState');
-    localStorage.setItem('thakir-day',TODAY);
+  function initCelestial(){
+    if(document.querySelector('.celestial-sky')) return;
+    document.body.insertAdjacentHTML('afterbegin', '<div class="celestial-sky" aria-hidden="true"><div class="celestial-stars"></div><div class="celestial-moon"></div><i class="celestial-meteor cm1"></i><i class="celestial-meteor cm2"></i><i class="celestial-meteor cm3"></i></div>');
+    var sky=document.querySelector('.celestial-sky');
+    window.addEventListener('pointermove',function(e){
+      var x=e.clientX/window.innerWidth-.5, y=e.clientY/window.innerHeight-.5;
+      sky.style.transform='translate3d('+(x*-6)+'px,'+(y*-4)+'px,0)';
+    },{passive:true});
+    window.addEventListener('pointerdown',function(e){
+      var r=document.createElement('span');
+      r.className='celestial-ripple';
+      r.style.left=e.clientX+'px'; r.style.top=e.clientY+'px';
+      document.body.appendChild(r);
+      setTimeout(function(){r.remove()},550);
+    },{passive:true});
+    window.addEventListener('deviceorientation',function(e){
+      if(e.gamma==null||e.beta==null)return;
+      var x=Math.max(-1,Math.min(1,e.gamma/30));
+      var y=Math.max(-1,Math.min(1,(e.beta-45)/30));
+      sky.style.transform='translate3d('+(x*-8)+'px,'+(y*-5)+'px,0)';
+    },{passive:true});
   }
-
-  let mode='morning';
-  const state=JSON.parse(localStorage.getItem('dhikrState')||'{}');
-  const list=document.getElementById('list');
-  const morning=document.getElementById('morning');
-  const evening=document.getElementById('evening');
-  const progressText=document.getElementById('progressText');
-  const progressRing=document.getElementById('progressRing');
-
-  function key(){return mode==='morning'?'m':'e'}
-  function save(){localStorage.setItem('dhikrState',JSON.stringify(state))}
-
-  function updateProgress(arr,done){
-    const total=arr.length;
-    const completed=arr.reduce((n,d,i)=>n+((done[i]||0)>=d.count?1:0),0);
-    const pct=total?Math.round(completed/total*100):0;
-    progressText.textContent=pct+'%';
-    progressRing.style.background=`conic-gradient(#8a70ff ${pct*3.6}deg,#233d65 ${pct*3.6}deg)`;
-  }
-
-  function setHero(){
-    const morningMode=mode==='morning';
-    document.getElementById('hello').textContent=morningMode?'صباح الخير':'مساء الخير';
-    document.getElementById('heroTitle').textContent=morningMode?'ابدأ صباحك بالذكر':'اختم يومك بالذكر';
-    document.getElementById('heroSub').textContent=morningMode?'ذِكرٌ هادئ، وأثرٌ يبقى.':'طمأنينةٌ في القلب، وذكرٌ لا ينقطع.';
-  }
-
-  function advance(i,card,d){
-    const done=state[key()]||(state[key()]={});
-    let cur=done[i]||0;
-    cur=cur>=d.count?0:cur+1;
-    done[i]=cur;
-    save();
-
-    const btn=card.querySelector('.btn');
-    const badge=card.querySelector('.count');
-    const complete=cur>=d.count;
-    btn.textContent=complete?'✓ تم':'اضغط للتسبيح'+(d.count>1?` (${cur}/${d.count})`:'');
-    btn.classList.toggle('done',complete);
-    badge.textContent=complete?'تم':(d.count===1?'مرة واحدة':d.count+' مرات');
-
-    card.classList.remove('completed');void card.offsetWidth;card.classList.add('completed');
-    updateProgress(DHIKR[mode],done);
-  }
-
-  function render(){
-    const arr=DHIKR[mode];
-    const done=state[key()]||{};
-    list.innerHTML='';
-
-    arr.forEach((d,i)=>{
-      const cur=done[i]||0;
-      const complete=cur>=d.count;
-      const card=document.createElement('article');
-      card.className='card';
-      card.innerHTML=`
-        <div class="top">
-          <span class="num">${i+1}</span>
-          <div class="title">${d.title||'ذِكر'}</div>
-          <span class="count">${complete?'تم':(d.count===1?'مرة واحدة':d.count+' مرات')}</span>
-        </div>
-        <div class="text">${d.text}</div>
-        ${d.ref?`<div class="ref">${d.ref}</div>`:''}
-        <button class="btn ${complete?'done':''}">${complete?'✓ تم':'اضغط للتسبيح'} ${d.count>1&&!complete?`(${cur}/${d.count})`:''}</button>
-      `;
-      const btn=card.querySelector('.btn');
-      const text=card.querySelector('.text');
-      btn.onclick=e=>{e.stopPropagation();advance(i,card,d)}
-      text.onclick=()=>advance(i,card,d);
-      list.appendChild(card);
-    });
-    updateProgress(arr,done);
-    setHero();
-  }
-
-  function setMode(m){
-    mode=m;
-    morning.classList.toggle('active',m==='morning');
-    evening.classList.toggle('active',m==='evening');
-    render();
-    window.scrollTo({top:0,behavior:'smooth'});
-  }
-  morning.onclick=()=>setMode('morning');
-  evening.onclick=()=>setMode('evening');
-
-  // Continue button scrolls to the first incomplete dhikr.
-  document.getElementById('continueBtn').onclick=()=>{
-    const arr=DHIKR[mode],done=state[key()]||{};
-    const idx=arr.findIndex((d,i)=>(done[i]||0)<d.count);
-    const target=list.children[idx<0?0:idx];
-    if(target)target.scrollIntoView({behavior:'smooth',block:'center'});
-  };
-
-  // Keep this card visual/interactive without changing the notification system.
-  document.getElementById('notifyBtn').onclick=()=>{
-    document.getElementById('notifyBtn').animate(
-      [{transform:'scale(1)'},{transform:'scale(.97)'},{transform:'scale(1)'}],
-      {duration:220}
-    );
-  };
-  document.getElementById('settings').onclick=()=>{
-    document.getElementById('settings').animate(
-      [{transform:'rotate(0) scale(1)'},{transform:'rotate(-12deg) scale(.94)'},{transform:'rotate(0) scale(1)'}],
-      {duration:260}
-    );
-  };
-
-  // Touch feedback.
-  document.addEventListener('pointerdown',e=>{
-    const card=e.target.closest('.card');
-    if(card)card.classList.add('pressed');
-    if(e.target.closest('button,.text')){
-      const t=document.createElement('span');
-      t.className='tap';t.style.left=e.clientX+'px';t.style.top=e.clientY+'px';
-      document.body.appendChild(t);setTimeout(()=>t.remove(),520);
-    }
-  },{passive:true});
-  document.addEventListener('pointerup',()=>{
-    document.querySelectorAll('.card.pressed').forEach(x=>x.classList.remove('pressed'));
-  },{passive:true});
-  document.addEventListener('pointercancel',()=>{
-    document.querySelectorAll('.card.pressed').forEach(x=>x.classList.remove('pressed'));
-  },{passive:true});
-
-  // Very subtle parallax from finger movement.
-  const bg=document.querySelector('.app-bg');
-  window.addEventListener('pointermove',e=>{
-    const x=e.clientX/window.innerWidth-.5;
-    const y=e.clientY/window.innerHeight-.5;
-    bg.style.transform=`translate3d(${x*-5}px,${y*-3}px,0)`;
-  },{passive:true});
-
-  render();
-
-  // Preserve the existing service-worker registration.
-  if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initCelestial);
+  else initCelestial();
 })();
 </script>
-</body>
-</html>
+</body></html>

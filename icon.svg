@@ -1,8 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<rect width="512" height="512" rx="110" fill="#061329"/>
-<circle cx="385" cy="120" r="70" fill="#fff0b9"/>
-<circle cx="414" cy="104" r="70" fill="#061329"/>
-<path d="M0 400 Q70 355 140 400 T280 400 T420 400 T560 400 V512 H0Z" fill="#0c2544"/>
-<path d="M115 414V350h62v64M136 350v-38h18v38M130 312q15-25 30 0M238 414v-78h76v78M267 336v-45h18v45M260 291q16-27 32 0M382 414v-58h58v58M402 356v-31h16v31M396 325q14-22 28 0" fill="#123656"/>
-<text x="256" y="472" text-anchor="middle" fill="#64e1a2" font-size="92" font-weight="700" font-family="Geeza Pro,SF Arabic,Arial,sans-serif">ذكر</text>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#031126"/><stop offset=".55" stop-color="#0a2445"/><stop offset="1" stop-color="#29214f"/></linearGradient><linearGradient id="ink" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff0c6"/><stop offset="1" stop-color="#e3b7ff"/></linearGradient></defs>
+<rect width="512" height="512" rx="112" fill="url(#bg)"/>
+<circle cx="390" cy="105" r="48" fill="#ffe8ad"/><circle cx="414" cy="90" r="48" fill="#071a31"/>
+<g fill="#c8ddff" opacity=".9"><circle cx="78" cy="106" r="3"/><circle cx="142" cy="70" r="2"/><circle cx="310" cy="78" r="2.5"/><circle cx="350" cy="165" r="2"/><circle cx="74" cy="215" r="2"/><circle cx="442" cy="226" r="2.5"/><circle cx="120" cy="318" r="1.8"/></g>
+<path d="M0 432 Q85 378 155 420 Q230 372 300 420 Q378 364 512 416 V512 H0Z" fill="#061326"/>
+<path d="M164 438V350h46v88M154 350h66l-33-35zM178 315v-22h14v22M274 438V305h86v133M262 305h110l-55-46zM309 259v-38h18v38M399 438V330h22M391 330h38l-19-22zM403 308v-24h10v24" fill="#061326"/>
+<circle cx="256" cy="258" r="122" fill="none" stroke="#ffe8b0" stroke-opacity=".10" stroke-width="2"/>
+<text x="256" y="292" text-anchor="middle" font-family="Amiri Quran, Amiri, serif" font-size="142" fill="url(#ink)">ذكر</text>
 </svg>
