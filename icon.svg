@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<rect width="512" height="512" rx="110" fill="#050b1d"/>
-<circle cx="390" cy="120" r="66" fill="#fff4c2"/>
-<circle cx="415" cy="105" r="66" fill="#050b1d"/>
-<path d="M0 390 Q70 350 140 390 T280 390 T420 390 T560 390 V512 H0Z" fill="#07152b"/>
-<path d="M105 405 V345 H175 V405 M135 345 V305 H150 V345 M125 305 Q142 278 159 305 M245 405 V330 H315 V405 M275 330 V286 H290 V330 M265 286 Q282 258 299 286 M385 405 V350 H445 V405 M410 350 V315 H423 V350 M402 315 Q416 292 430 315" fill="#0d2a3d"/>
-<text x="256" y="455" text-anchor="middle" fill="#57d9a0" font-size="92" font-weight="700" font-family="Geeza Pro,SF Arabic,Arial,sans-serif">ذكر</text>
+<rect width="512" height="512" rx="110" fill="#061329"/>
+<circle cx="385" cy="120" r="70" fill="#fff0b9"/>
+<circle cx="414" cy="104" r="70" fill="#061329"/>
+<path d="M0 400 Q70 355 140 400 T280 400 T420 400 T560 400 V512 H0Z" fill="#0c2544"/>
+<path d="M115 414V350h62v64M136 350v-38h18v38M130 312q15-25 30 0M238 414v-78h76v78M267 336v-45h18v45M260 291q16-27 32 0M382 414v-58h58v58M402 356v-31h16v31M396 325q14-22 28 0" fill="#123656"/>
+<text x="256" y="472" text-anchor="middle" fill="#64e1a2" font-size="92" font-weight="700" font-family="Geeza Pro,SF Arabic,Arial,sans-serif">ذكر</text>
 </svg>
