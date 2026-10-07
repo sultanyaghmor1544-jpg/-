@@ -102,3 +102,26 @@ body.morning:after,body.evening:after{animation:skyDrift 16s ease-in-out infinit
 /* Gentle float for cards and controls without becoming distracting. */
 .tabs button,.quick-actions button,.daily-card,.zekr{will-change:transform}
 @media (prefers-reduced-motion:reduce){body.morning:before,body.evening:before,body::after{animation:none}.mark.tap{animation:none}}
+\n\n/* V14: immersive motion + no page refresh on dhikr taps */
+html{background:#06152b!important}
+main{position:relative;z-index:2}
+body.morning:before,body.evening:before{content:"";position:fixed;inset:-12%;pointer-events:none;z-index:0;opacity:.82;background-image:
+ radial-gradient(circle at 10% 18%,#fff 0 1px,transparent 1.8px),
+ radial-gradient(circle at 26% 72%,#cbbcff 0 1.2px,transparent 2px),
+ radial-gradient(circle at 52% 28%,#ffe8b0 0 1.2px,transparent 2px),
+ radial-gradient(circle at 73% 12%,#fff 0 1px,transparent 1.8px),
+ radial-gradient(circle at 88% 62%,#9edcff 0 1.2px,transparent 2px),
+ radial-gradient(circle at 64% 84%,#d8c5ff 0 1px,transparent 1.8px);
+ background-size:180px 180px,230px 230px,260px 260px,200px 200px,280px 280px,240px 240px;
+ animation:starField 22s linear infinite alternate}
+body::after{z-index:1;animation:skyFloat 14s ease-in-out infinite alternate}
+.zekr{transform:translateZ(0);transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .28s,border-color .28s}
+.zekr:active{transform:scale(.992)}
+.mark{touch-action:manipulation;will-change:transform,box-shadow}
+.mark.tap{animation:buttonTap .34s cubic-bezier(.2,.8,.2,1)}
+.zekr.ripple::after{animation:ripple .58s cubic-bezier(.2,.7,.2,1)}
+.tabs button,.quick-actions button,.icon-btn,.primary-action{will-change:transform}
+.tabs button:active,.quick-actions button:active,.icon-btn:active,.primary-action:active{transform:scale(.965)}
+@keyframes starField{0%{background-position:0 0,0 0,0 0,0 0,0 0,0 0}100%{background-position:70px 35px,-55px 70px,45px -30px,-35px 50px,60px -45px,-45px -55px}}
+@keyframes skyFloat{0%{transform:translate3d(-1.5%,-1%,0) scale(1)}100%{transform:translate3d(1.5%,1%,0) scale(1.035)}}
+@media(prefers-reduced-motion:reduce){body.morning:before,body.evening:before,body::after{animation:none}.mark.tap{animation:none}}

@@ -18,7 +18,28 @@ function targetCount(benefit=''){const s=String(benefit).trim();if(/مائة/.te
 function getCount(m,i){const key=`count-${m}-${i}`,saved=Number.parseInt(localStorage.getItem(key),10);if(Number.isFinite(saved)&&saved>=0)return saved;if(localStorage.getItem(`done-${m}-${i}`)==='1'){const target=targetCount((m==='morning'?MORNING:EVENING)[i]?.benefit);localStorage.setItem(key,String(target));return target}return 0}
 function stats(){const arr=mode==='morning'?MORNING:EVENING;let done=0,total=0;arr.forEach((z,i)=>{const t=targetCount(z.benefit);total+=t;done+=Math.min(getCount(mode,i),t)});return{done,total,pct:total?Math.round(done/total*100):0}}
 function updateProgress(){const s=stats();progressText.textContent=s.pct+'%';progressRing.style.setProperty('--progress',s.pct+'%');progressLabel.textContent=s.pct===100?'أحسنت، اكتملت الأذكار':s.done?'أكمل أذكارك':'ابدأ أول ذكر'}
-function render(){document.body.className=mode;morningTab.classList.toggle('active',mode==='morning');eveningTab.classList.toggle('active',mode==='evening');document.querySelector('#heroTitle').textContent=mode==='morning'?'ابدأ صباحك بالذكر':'اختم يومك بالذكر';document.querySelector('#greeting').textContent=mode==='morning'?'صباح الخير':'مساء الخير';list.innerHTML='';(mode==='morning'?MORNING:EVENING).forEach((z,i)=>{const target=targetCount(z.benefit),count=Math.min(getCount(mode,i),target),el=document.createElement('article');el.className='zekr';el.innerHTML=`<div class="text">${z.text}</div>${z.benefit?`<div class="benefit">${z.benefit}</div>`:''}<button class="mark${count>=target?' done':''}" aria-label="الذكر ${count} من ${target}" ${count>=target?'disabled':''}>${count}/${target}</button>`;const advance=(button)=>{if(getCount(mode,i)>=target)return;button?.classList.remove('tap');if(button){void button.offsetWidth;button.classList.add('tap')}el.classList.remove('ripple');void el.offsetWidth;el.classList.add('ripple');const next=Math.min(getCount(mode,i)+1,target);localStorage.setItem(`count-${mode}-${i}`,String(next));setTimeout(render,160)};el.addEventListener('click',e=>{if(e.target.closest('.mark'))return;advance(el.querySelector('.mark'))});el.querySelector('.mark').onclick=e=>{e.stopPropagation();advance(e.currentTarget)};list.appendChild(el)});updateProgress()}
+function render(){document.body.className=mode;morningTab.classList.toggle('active',mode==='morning');eveningTab.classList.toggle('active',mode==='evening');document.querySelector('#heroTitle').textContent=mode==='morning'?'ابدأ صباحك بالذكر':'اختم يومك بالذكر';document.querySelector('#greeting').textContent=mode==='morning'?'صباح الخير':'مساء الخير';list.innerHTML='';(mode==='morning'?MORNING:EVENING).forEach((z,i)=>{const target=targetCount(z.benefit),count=Math.min(getCount(mode,i),target),el=document.createElement('article');el.className='zekr';el.innerHTML=`<div class="text">${z.text}</div>${z.benefit?`<div class="benefit">${z.benefit}</div>`:''}<button class="mark${count>=target?' done':''}" aria-label="الذكر ${count} من ${target}" ${count>=target?'disabled':''}>${count}/${target}</button>`;const advance=(button)=>{
+  const current=getCount(mode,i);
+  if(current>=target)return;
+  const next=Math.min(current+1,target);
+  localStorage.setItem(`count-${mode}-${i}`,String(next));
+  if(button){
+    button.textContent=`${next}/${target}`;
+    button.setAttribute('aria-label',`الذكر ${next} من ${target}`);
+    button.classList.remove('tap');
+    void button.offsetWidth;
+    button.classList.add('tap');
+    if(next>=target){button.classList.add('done');button.disabled=true;}
+  }
+  el.classList.remove('ripple');
+  void el.offsetWidth;
+  el.classList.add('ripple');
+  updateProgress();
+};
+
+el.addEventListener('click',e=>{if(e.target.closest('.mark'))return;advance(el.querySelector('.mark'))});
+el.querySelector('.mark').onclick=e=>{e.stopPropagation();advance(e.currentTarget)};
+list.appendChild(el)});updateProgress()}
 morningTab.onclick=()=>{mode='morning';localStorage.setItem('thakir-mode',mode);render()};eveningTab.onclick=()=>{mode='evening';localStorage.setItem('thakir-mode',mode);render()};
 document.querySelector('#continueBtn').onclick=()=>document.querySelector('#adhkar').scrollIntoView({behavior:'smooth',block:'start'});
 document.querySelector('#startBtn').onclick=()=>{localStorage.setItem('thakir-welcomed','1');welcome.classList.add('hidden');welcome.setAttribute('aria-hidden','true')};

@@ -1,27 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<defs>
-  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-    <stop offset="0" stop-color="#041226"/><stop offset=".52" stop-color="#0a2444"/><stop offset="1" stop-color="#24214e"/>
-  </linearGradient>
-  <radialGradient id="halo" cx="52%" cy="42%" r="48%">
-    <stop offset="0" stop-color="#ffd98a" stop-opacity=".18"/><stop offset="1" stop-color="#ffd98a" stop-opacity="0"/>
-  </radialGradient>
-  <linearGradient id="ink" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe8b0"/><stop offset="1" stop-color="#f3b8ff"/></linearGradient>
-</defs>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#031126"/><stop offset=".55" stop-color="#0a2445"/><stop offset="1" stop-color="#29214f"/></linearGradient><linearGradient id="ink" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff0c6"/><stop offset="1" stop-color="#e3b7ff"/></linearGradient></defs>
 <rect width="512" height="512" rx="112" fill="url(#bg)"/>
-<circle cx="389" cy="112" r="52" fill="#ffe8ad"/>
-<circle cx="414" cy="96" r="52" fill="#071a31"/>
-<circle cx="256" cy="252" r="210" fill="url(#halo)"/>
-<g fill="#b9dfff" opacity=".9">
-  <circle cx="96" cy="118" r="3"/><circle cx="158" cy="74" r="2"/><circle cx="294" cy="92" r="2.5"/>
-  <circle cx="352" cy="170" r="2"/><circle cx="74" cy="205" r="2"/><circle cx="432" cy="220" r="2.5"/>
-</g>
-<g fill="#061326">
- <path d="M0 420 Q80 375 145 415 Q220 360 285 414 Q360 355 512 410 V512 H0Z"/>
- <path d="M165 432 V348 H207 V432Z"/><path d="M155 348 H217 L186 321Z"/><path d="M180 321 V300 H193 V321Z"/>
- <path d="M274 432 V302 H360 V432Z"/><path d="M262 302 H372 L318 260Z"/><path d="M309 260 V221 H327 V260Z"/>
- <path d="M395 432 V328 H420 V432Z"/><path d="M388 328 H427 L407 307Z"/><path d="M403 307 V282 H412 V307Z"/>
-</g>
-<!-- Deliberately plain Arabic word: ذكر, no diacritics. A different Naskh-inspired treatment. -->
-<text x="256" y="284" text-anchor="middle" direction="rtl" font-family="Noto Naskh Arabic, Amiri, serif" font-size="142" font-weight="700" fill="url(#ink)">ذكر</text>
+<circle cx="390" cy="105" r="48" fill="#ffe8ad"/><circle cx="414" cy="90" r="48" fill="#071a31"/>
+<g fill="#c8ddff" opacity=".9"><circle cx="78" cy="106" r="3"/><circle cx="142" cy="70" r="2"/><circle cx="310" cy="78" r="2.5"/><circle cx="350" cy="165" r="2"/><circle cx="74" cy="215" r="2"/><circle cx="442" cy="226" r="2.5"/><circle cx="120" cy="318" r="1.8"/></g>
+<path d="M0 432 Q85 378 155 420 Q230 372 300 420 Q378 364 512 416 V512 H0Z" fill="#061326"/>
+<path d="M164 438V350h46v88M154 350h66l-33-35zM178 315v-22h14v22M274 438V305h86v133M262 305h110l-55-46zM309 259v-38h18v38M399 438V330h22M391 330h38l-19-22zM403 308v-24h10v24" fill="#061326"/>
+<circle cx="256" cy="258" r="122" fill="none" stroke="#ffe8b0" stroke-opacity=".10" stroke-width="2"/>
+<text x="256" y="292" text-anchor="middle" font-family="Amiri Quran, Amiri, serif" font-size="142" fill="url(#ink)">ذكر</text>
 </svg>
