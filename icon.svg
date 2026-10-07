@@ -4,5 +4,5 @@
 <circle cx="415" cy="105" r="66" fill="#050b1d"/>
 <path d="M0 390 Q70 350 140 390 T280 390 T420 390 T560 390 V512 H0Z" fill="#07152b"/>
 <path d="M105 405 V345 H175 V405 M135 345 V305 H150 V345 M125 305 Q142 278 159 305 M245 405 V330 H315 V405 M275 330 V286 H290 V330 M265 286 Q282 258 299 286 M385 405 V350 H445 V405 M410 350 V315 H423 V350 M402 315 Q416 292 430 315" fill="#0d2a3d"/>
-<text x="256" y="455" text-anchor="middle" fill="#fff5c9" font-size="92" font-weight="700" font-family="Geeza Pro,SF Arabic,Arial,sans-serif">ذكر</text>
+<text x="256" y="455" text-anchor="middle" fill="#57d9a0" font-size="92" font-weight="700" font-family="Geeza Pro,SF Arabic,Arial,sans-serif">ذكر</text>
 </svg>

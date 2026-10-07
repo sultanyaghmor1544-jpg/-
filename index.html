@@ -31,6 +31,8 @@ body::before{
     linear-gradient(180deg,#06112d 0%,#08152e 52%,#050a1b 100%);
 }
 header{
+  position:relative;
+  z-index:3;
   padding:28px 18px 16px;
   text-align:center;
   position:sticky;
@@ -46,7 +48,7 @@ p{color:#aab7b0}
 .night-sky{
   position:fixed;
   inset:0;
-  z-index:-2;
+  z-index:0;
   pointer-events:none;
   overflow:hidden;
 }
@@ -59,6 +61,15 @@ p{color:#aab7b0}
   border-radius:50%;
   background:#fff5c9;
   box-shadow:0 0 28px rgba(255,244,190,.18);
+  animation:moonFloat 5s ease-in-out infinite,moonGlow 3.5s ease-in-out infinite;
+}
+@keyframes moonFloat{
+  0%,100%{transform:translateY(0) rotate(0deg)}
+  50%{transform:translateY(8px) rotate(2deg)}
+}
+@keyframes moonGlow{
+  0%,100%{box-shadow:0 0 24px rgba(255,244,190,.16)}
+  50%{box-shadow:0 0 42px rgba(255,244,190,.32)}
 }
 .night-moon:after{
   content:"";
@@ -72,6 +83,7 @@ p{color:#aab7b0}
 }
 .night-stars{
   position:absolute;
+  animation:starsDrift 18s linear infinite;
   inset:0;
   background-image:
     radial-gradient(circle,rgba(255,255,255,.7) 0 1px,transparent 1.8px),
@@ -100,9 +112,10 @@ p{color:#aab7b0}
   transform-origin:right center;
   background:linear-gradient(90deg,transparent,rgba(255,255,255,.75));
 }
-.m1{top:18%;right:-12%;animation:meteor1 9s linear infinite 2s}
-.m2{top:34%;right:-18%;animation:meteor2 13s linear infinite 6s}
-.m3{top:51%;right:-10%;animation:meteor1 11s linear infinite 9s}
+.m1{top:18%;right:-12%;animation:meteor1 7s linear infinite 1s}
+.m2{top:34%;right:-18%;animation:meteor2 10s linear infinite 4s}
+.m3{top:51%;right:-10%;animation:meteor1 8s linear infinite 6s}
+@keyframes starsDrift{0%{transform:translate(0,0)}50%{transform:translate(-8px,5px)}100%{transform:translate(0,0)}}
 @keyframes meteor1{
   0%,78%{opacity:0;transform:translate(0,0)}
   80%{opacity:.85}
@@ -120,6 +133,8 @@ p{color:#aab7b0}
 }
 
 .tabs{
+  position:relative;
+  z-index:3;
   display:flex;
   gap:8px;
   padding:12px 14px;
@@ -144,6 +159,8 @@ p{color:#aab7b0}
   border-color:#fff5c9;
 }
 .progress{
+  position:relative;
+  z-index:3;
   margin:0 14px 12px;
   height:8px;
   background:#142033;
@@ -155,7 +172,7 @@ p{color:#aab7b0}
   background:#57d9a0;
   width:0;
 }
-.list{padding:0 14px 40px}
+.list{position:relative;z-index:2;padding:0 14px 40px}
 .card{
   background:linear-gradient(145deg,rgba(15,28,55,.9),rgba(7,14,31,.92));
   border:1px solid rgba(100,125,180,.28);
