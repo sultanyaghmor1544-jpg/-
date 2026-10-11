@@ -109,6 +109,12 @@ body.welcoming main{opacity:0;visibility:hidden}
 .switch input:checked+span:before{transform:translateX(-18px)}
 
 /* stories */
+.opts{display:grid;gap:8px;margin-top:12px}
+.opt{font:inherit;font-size:15px;line-height:1.7;text-align:right;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--ink);cursor:pointer}
+.opt:active{opacity:.8}
+.opt:disabled{cursor:default;color:var(--ink)}
+.opt.right{border-color:#4fbf8a;background:rgba(79,191,138,.2)}
+.opt.wrong{border-color:#e07a7a;background:rgba(224,122,122,.18)}
 .sec-title{font-size:14px;color:var(--muted);margin:22px 4px 2px;font-weight:500}
 .quiz .label{font-size:12px;color:var(--accent);margin-bottom:4px}
 .quiz .text{font-size:18px;line-height:2}

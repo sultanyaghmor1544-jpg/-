@@ -145,20 +145,27 @@
     c.style.cursor = 'default';
     c.appendChild(el('div', 'label', qShown ? 'تذكرة أخرى' : 'تذكرة اليوم'));
     c.appendChild(el('div', 'text', s.q));
+    const opts = [s.ok].concat(s.bad).map(t => ({ t, r: Math.random() })).sort((x, y) => x.r - y.r).map(x => x.t);
+    const wrap = el('div', 'opts');
     const box = el('div', 'answer'); box.hidden = true;
     const a1 = el('div'); a1.appendChild(el('span', 'lbl', 'الجواب')); a1.appendChild(document.createTextNode(s.a)); box.appendChild(a1);
     const a2 = el('div'); a2.style.marginTop = '6px'; a2.appendChild(el('span', 'lbl', 'من قصة نبي الله ' + s.name + ' عليه السلام')); a2.appendChild(document.createTextNode(s.lessons[0])); box.appendChild(a2);
     box.appendChild(el('span', 'ref', s.ref));
-    c.appendChild(box);
-    const btn = el('button', 'mark', 'اعرض الجواب'); btn.type = 'button';
-    btn.onclick = e => {
-      if (box.hidden) {
-        box.hidden = false; btn.textContent = 'تذكرة أخرى';
-        sky().burst(e.clientX || innerWidth / 2, e.clientY || innerHeight / 2, 'big'); buzz(10);
-        if (!store.get('done-story-' + today())) { store.set('done-story-' + today(), '1'); showToast('جزاك الله خيرًا، اطّلعت على تذكرة اليوم ✦'); }
-      } else { qi = (qi + 1) % STORIES.length; qShown++; renderStories(); }
-    };
-    c.appendChild(btn);
+    const next = el('button', 'mark', 'تذكرة أخرى'); next.type = 'button'; next.hidden = true;
+    next.onclick = () => { qi = (qi + 1) % STORIES.length; qShown++; renderStories(); };
+    const btns = opts.map(t => {
+      const b = el('button', 'opt', t); b.type = 'button';
+      b.onclick = e => {
+        btns.forEach(x => { x.disabled = true; if (x.textContent === s.ok) x.classList.add('right'); });
+        const good = t === s.ok;
+        if (!good) b.classList.add('wrong');
+        box.hidden = false; next.hidden = false;
+        if (good) { sky().burst(e.clientX || innerWidth / 2, e.clientY || innerHeight / 2, 'big'); buzz(10); } else buzz([30]);
+        if (!store.get('done-story-' + today())) { store.set('done-story-' + today(), '1'); showToast(good ? 'أحسنت، إجابة صحيحة ✦' : 'جزاك الله خيرًا، تذكّر الجواب ✦'); }
+      };
+      wrap.appendChild(b); return b;
+    });
+    c.appendChild(wrap); c.appendChild(box); c.appendChild(next);
     return c;
   }
   function storyCard(s, idx) {
