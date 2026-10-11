@@ -119,6 +119,7 @@ body.welcoming main{opacity:0;visibility:hidden}
 .quiz .label{font-size:12px;color:var(--accent);margin-bottom:4px}
 .quiz .text{font-size:18px;line-height:2}
 .answer{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:16px;line-height:2}
+.quiz .answer{font-size:15px}
 .answer .lbl{font-size:12px;color:var(--muted);display:block}
 .story-head{all:unset;box-sizing:border-box;width:100%;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:16px;font-weight:500;font-family:inherit;color:inherit}
 .story-head small{color:var(--muted);font-weight:400;font-size:12px;margin-right:8px}

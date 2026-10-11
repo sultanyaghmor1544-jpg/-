@@ -138,9 +138,10 @@
   /* ---------- stories ---------- */
   const el = (tag, cls, txt) => { const n = document.createElement(tag); if (cls) n.className = cls; if (txt) n.textContent = txt; return n; };
   const dayIndex = () => { const d = new Date(); return Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 864e5); };
-  let qi = dayIndex() % STORIES.length, qShown = 0;
+  const POOL = SEERAH.concat(STORIES);
+  let qi = dayIndex() % POOL.length, qShown = 0;
   function quizCard() {
-    const s = STORIES[qi];
+    const s = POOL[qi];
     const c = el('article', 'zekr in quiz');
     c.style.cursor = 'default';
     c.appendChild(el('div', 'label', qShown ? 'تذكرة أخرى' : 'تذكرة اليوم'));
@@ -148,11 +149,11 @@
     const opts = [s.ok].concat(s.bad).map(t => ({ t, r: Math.random() })).sort((x, y) => x.r - y.r).map(x => x.t);
     const wrap = el('div', 'opts');
     const box = el('div', 'answer'); box.hidden = true;
-    const a1 = el('div'); a1.appendChild(el('span', 'lbl', 'الجواب')); a1.appendChild(document.createTextNode(s.a)); box.appendChild(a1);
-    const a2 = el('div'); a2.style.marginTop = '6px'; a2.appendChild(el('span', 'lbl', 'من قصة نبي الله ' + s.name + ' عليه السلام')); a2.appendChild(document.createTextNode(s.lessons[0])); box.appendChild(a2);
+    const a1 = el('div'); a1.appendChild(el('span', 'lbl', 'الجواب')); a1.appendChild(document.createTextNode(s.ok)); box.appendChild(a1);
+    const a2 = el('div'); a2.style.marginTop = '6px'; a2.appendChild(el('span', 'lbl', s.kind === 'seerah' ? 'من سيرة نبينا محمد صلى الله عليه وسلم: ' + s.title : 'من قصة ' + s.title)); a2.appendChild(document.createTextNode(s.a)); box.appendChild(a2);
     box.appendChild(el('span', 'ref', s.ref));
     const next = el('button', 'mark', 'تذكرة أخرى'); next.type = 'button'; next.hidden = true;
-    next.onclick = () => { qi = (qi + 1) % STORIES.length; qShown++; renderStories(); };
+    next.onclick = () => { qi = (qi + 1) % POOL.length; qShown++; renderStories(); };
     const btns = opts.map(t => {
       const b = el('button', 'opt', t); b.type = 'button';
       b.onclick = e => {
@@ -171,7 +172,7 @@
   function storyCard(s, idx) {
     const c = el('article', 'zekr in'); c.style.cursor = 'default';
     const head = el('button', 'story-head'); head.type = 'button'; head.setAttribute('aria-expanded', 'false');
-    const t = el('span', '', 'نبي الله ' + s.name); t.appendChild(el('small', '', s.ref.split('،')[0]));
+    const t = el('span', '', s.title); t.appendChild(el('small', '', s.ref.split('،')[0]));
     head.appendChild(t); head.appendChild(el('i', '', '⌄'));
     const body = el('div', 'story-body'); body.hidden = true;
     body.appendChild(el('p', '', s.sum));
@@ -185,7 +186,9 @@
   function renderStories() {
     storiesBox.textContent = '';
     storiesBox.appendChild(quizCard());
-    storiesBox.appendChild(el('h3', 'sec-title', 'قصص الأنبياء'));
+    storiesBox.appendChild(el('h3', 'sec-title', 'سيرة نبينا محمد صلى الله عليه وسلم'));
+    SEERAH.forEach((s, i) => storiesBox.appendChild(storyCard(s, i)));
+    storiesBox.appendChild(el('h3', 'sec-title', 'قصص الأنبياء السابقين'));
     STORIES.forEach((s, i) => storiesBox.appendChild(storyCard(s, i)));
   }
   function setMode(m) {
