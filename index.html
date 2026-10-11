@@ -2,25 +2,27 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#06152b"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="theme-color" content="#06152b"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black"><meta name="apple-mobile-web-app-title" content="ذَكِّر">
+<link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="icon" href="icon-192.png" sizes="192x192" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="manifest" href="manifest.json">
-<title>ذكر</title><link rel="stylesheet" href="style.css">
+<title>ذَكِّر</title><link rel="stylesheet" href="style.css">
 </head>
 <body class="morning">
+<canvas id="sky" aria-hidden="true"></canvas>
 <div id="welcome" class="welcome-screen" aria-hidden="true">
-  <div class="stars"></div><div class="welcome-moon"></div><div class="welcome-horizon"></div>
   <div class="welcome-card">
-    <div class="brand-mark"><img src="icon.svg" alt="ذكر"></div>
-    <div class="eyebrow">ذكر — لنتذكّر معًا</div>
-    <h1>ذكر</h1>
-    <p class="verse">﴿وَذَكِّرْ فَإِنَّ الذِّكْرَىٰ تَنفَعُ الْمُؤْمِنِينَ﴾</p>
+    <div class="brand-mark"><img src="icon.svg" alt="ذَكِّر"></div>
+    <div class="eyebrow">ذَكِّر — لنتذكّر معًا</div>
+    <h1>ذَكِّر</h1>
+    <p class="verse">﴿وَذَكِّرْ فَإِنَّ الذِّكْرَىٰ تَنفَعُ الْمُؤْمِنِينَ﴾</p>
     <p class="verse-ref">[الذاريات: 55]</p>
     <button id="startBtn" class="primary-action">ابدأ الآن <span>←</span></button>
   </div>
 </div>
 <main>
 <header class="hero">
-  <div class="topbar"><div><div class="brand">ذكر</div><div class="subtitle">لنتذكّر معًا.</div></div><button id="settingsBtn" class="icon-btn" aria-label="الإعدادات">⚙︎</button></div>
+  <div class="topbar"><div><div class="brand">ذَكِّر</div><div class="subtitle">لنتذكّر معًا.</div></div><button id="settingsBtn" class="icon-btn" aria-label="الإعدادات">⚙︎</button></div>
   <div class="hero-copy"><span id="greeting">صباح الخير</span><h2 id="heroTitle">ابدأ صباحك بالذكر</h2><p>ذكرٌ هادئ، وأثرٌ يبقى.</p></div>
   <div class="tabs"><button id="morningTab" class="active">الصباح <small>☀</small></button><button id="eveningTab">المساء <small>☾</small></button></div>
 </header>
@@ -34,36 +36,7 @@
 </section>
 <section id="adhkar"></section>
 </main>
-<div id="settingsModal" class="modal" aria-hidden="true"><div class="modal-sheet"><button id="closeSettings" class="close-btn">×</button><span class="eyebrow">الإعدادات</span><h3>خلّ ذكر على طريقتك</h3><p>الإشعارات الحقيقية للفجر والعصر ستعمل بعد إكمال ربط خدمة Push.</p><div class="setting-row"><div><b>أذكار الصباح</b><small>تذكير عند الفجر</small></div><label class="switch"><input id="morningNotify" type="checkbox" checked><span></span></label></div><div class="setting-row"><div><b>أذكار المساء</b><small>تذكير عند العصر</small></div><label class="switch"><input id="eveningNotify" type="checkbox" checked><span></span></label></div></div></div>
-<script src="data.js"></script><script src="app.js"></script>
-
-<script>
-/* V15 visual interactions only — does not modify app/notification logic */
-(function(){
-  function initCelestial(){
-    if(document.querySelector('.celestial-sky')) return;
-    document.body.insertAdjacentHTML('afterbegin', '<div class="celestial-sky" aria-hidden="true"><div class="celestial-stars"></div><div class="celestial-moon"></div><i class="celestial-meteor cm1"></i><i class="celestial-meteor cm2"></i><i class="celestial-meteor cm3"></i></div>');
-    var sky=document.querySelector('.celestial-sky');
-    window.addEventListener('pointermove',function(e){
-      var x=e.clientX/window.innerWidth-.5, y=e.clientY/window.innerHeight-.5;
-      sky.style.transform='translate3d('+(x*-6)+'px,'+(y*-4)+'px,0)';
-    },{passive:true});
-    window.addEventListener('pointerdown',function(e){
-      var r=document.createElement('span');
-      r.className='celestial-ripple';
-      r.style.left=e.clientX+'px'; r.style.top=e.clientY+'px';
-      document.body.appendChild(r);
-      setTimeout(function(){r.remove()},550);
-    },{passive:true});
-    window.addEventListener('deviceorientation',function(e){
-      if(e.gamma==null||e.beta==null)return;
-      var x=Math.max(-1,Math.min(1,e.gamma/30));
-      var y=Math.max(-1,Math.min(1,(e.beta-45)/30));
-      sky.style.transform='translate3d('+(x*-8)+'px,'+(y*-5)+'px,0)';
-    },{passive:true});
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initCelestial);
-  else initCelestial();
-})();
-</script>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div id="settingsModal" class="modal" aria-hidden="true"><div class="modal-sheet"><button id="closeSettings" class="close-btn" aria-label="إغلاق">×</button><span class="eyebrow">الإعدادات</span><h3>خلّ ذَكِّر على طريقتك</h3><p>اختر التذكيرات التي تريدها. ولتصلك الإشعارات والتطبيق مغلق، فعّل «التذكيرات» من الصفحة الرئيسية.</p><div class="setting-row"><div><b>أذكار الصباح</b><small>تذكير عند الفجر</small></div><label class="switch"><input id="morningNotify" type="checkbox" checked><span></span></label></div><div class="setting-row"><div><b>أذكار المساء</b><small>تذكير عند العصر</small></div><label class="switch"><input id="eveningNotify" type="checkbox" checked><span></span></label></div></div></div>
+<script src="data.js"></script><script src="sky.js"></script><script src="app.js"></script>
 </body></html>
