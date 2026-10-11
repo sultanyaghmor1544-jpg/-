@@ -1,5 +1,5 @@
-const CACHE='thakir-v19';
-const ASSETS=['./','./index.html','./style.css','./app.js','./sky.js','./data.js','./stories.js','./manifest.json','./icon.svg','./icon.png','./icon-192.png','./icon-maskable.png','./apple-touch-icon.png'];
+const CACHE='thakir-v20';
+const ASSETS=['./','./index.html','./style.css','./app.js','./sky.js','./data.js','./stories.js','./trivia.js','./manifest.json','./icon.svg','./icon.png','./icon-192.png','./icon-maskable.png','./apple-touch-icon.png'];
 
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 

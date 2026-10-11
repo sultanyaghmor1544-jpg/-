@@ -124,7 +124,7 @@
     document.body.classList.remove('morning', 'evening', 'stories'); document.body.classList.add(mode);
     [[morningTab, 'morning'], [eveningTab, 'evening'], [storiesTab, 'stories']].forEach(([b, m]) => { b.classList.toggle('active', mode === m); b.setAttribute('aria-pressed', mode === m); });
     const isStories = mode === 'stories';
-    $('#heroTitle').textContent = isStories ? 'قصص الأنبياء وعِبرها' : mode === 'morning' ? 'ابدأ صباحك بالذكر' : 'اختم يومك بالذكر';
+    $('#heroTitle').textContent = isStories ? 'تذكرة وعِبرة' : mode === 'morning' ? 'ابدأ صباحك بالذكر' : 'اختم يومك بالذكر';
     $('#greeting').textContent = isStories ? 'تذكّر' : mode === 'morning' ? 'صباح الخير' : 'مساء الخير';
     list.hidden = isStories; storiesBox.hidden = !isStories;
     if (isStories) { renderStories(); return; }
@@ -138,20 +138,20 @@
   /* ---------- stories ---------- */
   const el = (tag, cls, txt) => { const n = document.createElement(tag); if (cls) n.className = cls; if (txt) n.textContent = txt; return n; };
   const dayIndex = () => { const d = new Date(); return Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 864e5); };
-  const POOL = SEERAH.concat(STORIES);
+  const POOL = TRIVIA;
   let qi = dayIndex() % POOL.length, qShown = 0;
   function quizCard() {
     const s = POOL[qi];
     const c = el('article', 'zekr in quiz');
     c.style.cursor = 'default';
-    c.appendChild(el('div', 'label', qShown ? 'تذكرة أخرى' : 'تذكرة اليوم'));
+    c.appendChild(el('div', 'label', (qShown ? 'تذكرة أخرى' : 'تذكرة اليوم') + ' · ' + s.cat));
     c.appendChild(el('div', 'text', s.q));
     const opts = [s.ok].concat(s.bad).map(t => ({ t, r: Math.random() })).sort((x, y) => x.r - y.r).map(x => x.t);
     const wrap = el('div', 'opts');
     const box = el('div', 'answer'); box.hidden = true;
     const a1 = el('div'); a1.appendChild(el('span', 'lbl', 'الجواب')); a1.appendChild(document.createTextNode(s.ok)); box.appendChild(a1);
-    const a2 = el('div'); a2.style.marginTop = '6px'; a2.appendChild(el('span', 'lbl', s.kind === 'seerah' ? 'من سيرة نبينا محمد صلى الله عليه وسلم: ' + s.title : 'من قصة ' + s.title)); a2.appendChild(document.createTextNode(s.a)); box.appendChild(a2);
-    box.appendChild(el('span', 'ref', s.ref));
+    const a2 = el('div'); a2.style.marginTop = '6px'; a2.appendChild(el('span', 'lbl', 'تذكّر')); a2.appendChild(document.createTextNode(s.note)); box.appendChild(a2);
+    if (s.ref) box.appendChild(el('span', 'ref', s.ref));
     const next = el('button', 'mark', 'تذكرة أخرى'); next.type = 'button'; next.hidden = true;
     next.onclick = () => { qi = (qi + 1) % POOL.length; qShown++; renderStories(); };
     const btns = opts.map(t => {
@@ -162,7 +162,7 @@
         if (!good) b.classList.add('wrong');
         box.hidden = false; next.hidden = false;
         if (good) { sky().burst(e.clientX || innerWidth / 2, e.clientY || innerHeight / 2, 'big'); buzz(10); } else buzz([30]);
-        if (!store.get('done-story-' + today())) { store.set('done-story-' + today(), '1'); showToast(good ? 'أحسنت، إجابة صحيحة ✦' : 'جزاك الله خيرًا، تذكّر الجواب ✦'); }
+        if (!store.get('done-story-' + today())) { store.set('done-story-' + today(), '1'); showToast(good ? 'أحسنت، إجابة صحيحة ✦' : 'جزاك الله خيرًا، هذه تذكرة لك ✦'); }
       };
       wrap.appendChild(b); return b;
     });
