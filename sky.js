@@ -177,29 +177,29 @@
   function sun(x, y, v) {
     var pulse = 1 + Math.sin(t * 1.2) * .05;
     ctx.save(); ctx.globalAlpha = v; ctx.globalCompositeOperation = 'lighter';
-    var gr = ctx.createRadialGradient(x, y, 0, x, y, 150 * pulse);
+    var gr = ctx.createRadialGradient(x, y, 0, x, y, 100 * pulse);
     gr.addColorStop(0, 'rgba(255,214,140,.32)'); gr.addColorStop(.35, 'rgba(255,170,100,.2)'); gr.addColorStop(1, 'rgba(255,150,90,0)');
-    ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(x, y, 150 * pulse, 0, 6.283); ctx.fill();
+    ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(x, y, 100 * pulse, 0, 6.283); ctx.fill();
     ctx.translate(x, y); ctx.rotate(t * .04);
     for (var i = 0; i < 14; i++) {
       ctx.rotate(6.283 / 14);
       ctx.fillStyle = 'rgba(255,226,160,' + (.035 + .02 * Math.sin(t * 1.5 + i)) + ')';
-      ctx.beginPath(); ctx.moveTo(-3, 40); ctx.lineTo(0, 150 + (i % 2) * 30); ctx.lineTo(3, 40); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(-2, 26); ctx.lineTo(0, 100 + (i % 2) * 20); ctx.lineTo(2, 26); ctx.fill();
     }
     ctx.restore();
     ctx.save(); ctx.globalAlpha = v;
     var c = ctx.createRadialGradient(x - 6, y - 6, 2, x, y, 32);
     c.addColorStop(0, '#fff8d6'); c.addColorStop(1, '#ffc766');
-    ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x, y, 22, 0, 6.283); ctx.fill(); ctx.restore();
+    ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x, y, 15, 0, 6.283); ctx.fill(); ctx.restore();
   }
   function moon(x, y, v) {
     var pulse = 1 + Math.sin(t * .9) * .06;
     ctx.save(); ctx.globalAlpha = v * .9; ctx.globalCompositeOperation = 'lighter';
-    var gr = ctx.createRadialGradient(x, y, 10, x, y, 120 * pulse);
+    var gr = ctx.createRadialGradient(x, y, 10, x, y, 80 * pulse);
     gr.addColorStop(0, 'rgba(255,240,190,.28)'); gr.addColorStop(1, 'rgba(255,240,190,0)');
-    ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(x, y, 120 * pulse, 0, 6.283); ctx.fill(); ctx.restore();
+    ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(x, y, 80 * pulse, 0, 6.283); ctx.fill(); ctx.restore();
     ctx.save(); ctx.globalAlpha = v; ctx.translate(x, y); ctx.rotate(Math.sin(t * .5) * .04);
-    ctx.drawImage(sprites.moon, -60, -60, 120, 120); ctx.restore();
+    ctx.drawImage(sprites.moon, -40, -40, 80, 80); ctx.restore();
   }
   function drawBodies(m, ox, oy) {
     var bx = W * .17 - ox * 14, by = Math.max(105, H * .14) - oy * 8, sv = 1 - m, mv = m;

@@ -11,12 +11,15 @@
   const buzz = p => { try { navigator.vibrate && navigator.vibrate(p); } catch (_) {} };
 
   const morningTab = $('#morningTab'), eveningTab = $('#eveningTab'), list = $('#adhkar'),
+    storiesTab = $('#storiesTab'), storiesBox = $('#stories'),
     notifyBtn = $('#notifyBtn'), notifyStatus = $('#notifyStatus'), nextPrayer = $('#nextPrayer'),
     progressText = $('#progressText'), progressLabel = $('#progressLabel'), progressRing = $('.progress-ring'),
     welcome = $('#welcome'), toast = $('#toast');
 
-  let mode = store.get('thakir-mode') === 'evening' ? 'evening' : 'morning';
-  const items = () => (mode === 'morning' ? MORNING : EVENING);
+  const savedMode = store.get('thakir-mode');
+  let mode = savedMode === 'evening' || savedMode === 'stories' ? savedMode : 'morning';
+  const items = () => (mode === 'evening' ? EVENING : MORNING);
+  const skyMode = () => (mode === 'morning' ? 'morning' : 'evening');
   const today = () => new Date().toLocaleDateString('en-CA');
 
   /* ---------- daily reset ---------- */
@@ -118,24 +121,74 @@
   }
 
   function render() {
-    document.body.classList.remove('morning', 'evening'); document.body.classList.add(mode);
-    morningTab.classList.toggle('active', mode === 'morning'); eveningTab.classList.toggle('active', mode === 'evening');
-    morningTab.setAttribute('aria-pressed', mode === 'morning'); eveningTab.setAttribute('aria-pressed', mode === 'evening');
-    $('#heroTitle').textContent = mode === 'morning' ? 'ابدأ صباحك بالذكر' : 'اختم يومك بالذكر';
-    $('#greeting').textContent = mode === 'morning' ? 'صباح الخير' : 'مساء الخير';
+    document.body.classList.remove('morning', 'evening', 'stories'); document.body.classList.add(mode);
+    [[morningTab, 'morning'], [eveningTab, 'evening'], [storiesTab, 'stories']].forEach(([b, m]) => { b.classList.toggle('active', mode === m); b.setAttribute('aria-pressed', mode === m); });
+    const isStories = mode === 'stories';
+    $('#heroTitle').textContent = isStories ? 'قصص الأنبياء وعِبرها' : mode === 'morning' ? 'ابدأ صباحك بالذكر' : 'اختم يومك بالذكر';
+    $('#greeting').textContent = isStories ? 'تذكّر' : mode === 'morning' ? 'صباح الخير' : 'مساء الخير';
+    list.hidden = isStories; storiesBox.hidden = !isStories;
+    if (isStories) { renderStories(); return; }
     list.textContent = '';
     const frag = document.createDocumentFragment();
     items().forEach((z, i) => frag.appendChild(card(z, i)));
     list.appendChild(frag);
     reveal(); updateProgress(false);
   }
+
+  /* ---------- stories ---------- */
+  const el = (tag, cls, txt) => { const n = document.createElement(tag); if (cls) n.className = cls; if (txt) n.textContent = txt; return n; };
+  const dayIndex = () => { const d = new Date(); return Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 864e5); };
+  let qi = dayIndex() % STORIES.length, qShown = 0;
+  function quizCard() {
+    const s = STORIES[qi];
+    const c = el('article', 'zekr in quiz');
+    c.style.cursor = 'default';
+    c.appendChild(el('div', 'label', qShown ? 'تذكرة أخرى' : 'تذكرة اليوم'));
+    c.appendChild(el('div', 'text', s.q));
+    const box = el('div', 'answer'); box.hidden = true;
+    const a1 = el('div'); a1.appendChild(el('span', 'lbl', 'الجواب')); a1.appendChild(document.createTextNode(s.a)); box.appendChild(a1);
+    const a2 = el('div'); a2.style.marginTop = '6px'; a2.appendChild(el('span', 'lbl', 'من قصة نبي الله ' + s.name + ' عليه السلام')); a2.appendChild(document.createTextNode(s.lessons[0])); box.appendChild(a2);
+    box.appendChild(el('span', 'ref', s.ref));
+    c.appendChild(box);
+    const btn = el('button', 'mark', 'اعرض الجواب'); btn.type = 'button';
+    btn.onclick = e => {
+      if (box.hidden) {
+        box.hidden = false; btn.textContent = 'تذكرة أخرى';
+        sky().burst(e.clientX || innerWidth / 2, e.clientY || innerHeight / 2, 'big'); buzz(10);
+        if (!store.get('done-story-' + today())) { store.set('done-story-' + today(), '1'); showToast('جزاك الله خيرًا، اطّلعت على تذكرة اليوم ✦'); }
+      } else { qi = (qi + 1) % STORIES.length; qShown++; renderStories(); }
+    };
+    c.appendChild(btn);
+    return c;
+  }
+  function storyCard(s, idx) {
+    const c = el('article', 'zekr in'); c.style.cursor = 'default';
+    const head = el('button', 'story-head'); head.type = 'button'; head.setAttribute('aria-expanded', 'false');
+    const t = el('span', '', 'نبي الله ' + s.name); t.appendChild(el('small', '', s.ref.split('،')[0]));
+    head.appendChild(t); head.appendChild(el('i', '', '⌄'));
+    const body = el('div', 'story-body'); body.hidden = true;
+    body.appendChild(el('p', '', s.sum));
+    body.appendChild(el('span', 'mini-label', 'العِبر'));
+    const ul = el('ul'); s.lessons.forEach(l => ul.appendChild(el('li', '', l))); body.appendChild(ul);
+    body.appendChild(el('span', 'ref', 'المراجع: ' + s.ref));
+    head.onclick = () => { const open = body.hidden; body.hidden = !open; head.setAttribute('aria-expanded', open); };
+    c.appendChild(head); c.appendChild(body);
+    return c;
+  }
+  function renderStories() {
+    storiesBox.textContent = '';
+    storiesBox.appendChild(quizCard());
+    storiesBox.appendChild(el('h3', 'sec-title', 'قصص الأنبياء'));
+    STORIES.forEach((s, i) => storiesBox.appendChild(storyCard(s, i)));
+  }
   function setMode(m) {
     if (m === mode) return;
     mode = m; store.set('thakir-mode', mode);
-    sky().setMode(mode); render();
+    sky().setMode(skyMode()); render();
   }
   morningTab.onclick = () => setMode('morning');
   eveningTab.onclick = () => setMode('evening');
+  storiesTab.onclick = () => setMode('stories');
 
   $('#continueBtn').onclick = () => {
     const next = [...list.querySelectorAll('.zekr')].find(c => !c.classList.contains('complete'));
@@ -236,7 +289,7 @@
 
   /* ---------- go ---------- */
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
-  sky().setMode(mode, true);
+  sky().setMode(skyMode(), true);
   render();
   prayerTimes();
 })();
