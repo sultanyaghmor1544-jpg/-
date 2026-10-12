@@ -139,22 +139,23 @@
   const el = (tag, cls, txt) => { const n = document.createElement(tag); if (cls) n.className = cls; if (txt) n.textContent = txt; return n; };
   const dayIndex = () => { const d = new Date(); return Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 864e5); };
   const POOL = TRIVIA;
-  let qi = dayIndex() % POOL.length, qShown = 0;
-  function quizCard() {
-    const s = POOL[qi];
+  const shuffle = arr => arr.map(x => ({ x, r: Math.random() })).sort((p, q) => p.r - q.r).map(o => o.x);
+  const ROUNDS = [5, 10, 20];
+  let round = null;
+
+  function questionCard(s, label, nextText, onAnswer, onNext) {
     const c = el('article', 'zekr in quiz');
     c.style.cursor = 'default';
-    c.appendChild(el('div', 'label', (qShown ? 'تذكرة أخرى' : 'تذكرة اليوم') + ' · ' + s.cat));
+    c.appendChild(el('div', 'label', label));
     c.appendChild(el('div', 'text', s.q));
-    const opts = [s.ok].concat(s.bad).map(t => ({ t, r: Math.random() })).sort((x, y) => x.r - y.r).map(x => x.t);
     const wrap = el('div', 'opts');
     const box = el('div', 'answer'); box.hidden = true;
     const a1 = el('div'); a1.appendChild(el('span', 'lbl', 'الجواب')); a1.appendChild(document.createTextNode(s.ok)); box.appendChild(a1);
     const a2 = el('div'); a2.style.marginTop = '6px'; a2.appendChild(el('span', 'lbl', 'تذكّر')); a2.appendChild(document.createTextNode(s.note)); box.appendChild(a2);
     if (s.ref) box.appendChild(el('span', 'ref', s.ref));
-    const next = el('button', 'mark', 'تذكرة أخرى'); next.type = 'button'; next.hidden = true;
-    next.onclick = () => { qi = (qi + 1) % POOL.length; qShown++; renderStories(); };
-    const btns = opts.map(t => {
+    const next = el('button', 'mark', nextText); next.type = 'button'; next.hidden = true;
+    next.onclick = onNext;
+    const btns = shuffle([s.ok].concat(s.bad)).map(t => {
       const b = el('button', 'opt', t); b.type = 'button';
       b.onclick = e => {
         btns.forEach(x => { x.disabled = true; if (x.textContent === s.ok) x.classList.add('right'); });
@@ -162,13 +163,81 @@
         if (!good) b.classList.add('wrong');
         box.hidden = false; next.hidden = false;
         if (good) { sky().burst(e.clientX || innerWidth / 2, e.clientY || innerHeight / 2, 'big'); buzz(10); } else buzz([30]);
-        if (!store.get('done-story-' + today())) { store.set('done-story-' + today(), '1'); showToast(good ? 'أحسنت، إجابة صحيحة ✦' : 'جزاك الله خيرًا، هذه تذكرة لك ✦'); }
+        onAnswer(good);
       };
       wrap.appendChild(b); return b;
     });
     c.appendChild(wrap); c.appendChild(box); c.appendChild(next);
     return c;
   }
+
+  function launcher() {
+    const c = el('article', 'zekr in quiz'); c.style.cursor = 'default';
+    c.appendChild(el('div', 'label', 'تحدّي التذكرة'));
+    c.appendChild(el('div', 'text', 'اختر عدد الأسئلة وانظر كم تجيب'));
+    const grid = el('div', 'rounds');
+    ROUNDS.forEach(n => {
+      const b = el('button', 'round-btn'); b.type = 'button';
+      b.appendChild(el('b', '', String(n)));
+      b.appendChild(el('span', '', 'أسئلة'));
+      const best = store.get('best-' + n);
+      b.appendChild(el('small', '', best !== null && best !== undefined ? 'أفضل: ' + best + '/' + n : 'لم تبدأ بعد'));
+      b.onclick = () => startRound(n);
+      grid.appendChild(b);
+    });
+    c.appendChild(grid);
+    return c;
+  }
+
+  function startRound(n) {
+    round = { n, i: 0, score: 0, qs: shuffle(POOL).slice(0, n), missed: [] };
+    renderStories(); storiesBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function roundView() {
+    const r = round;
+    const wrap = document.createDocumentFragment();
+    const head = el('div', 'rhead');
+    head.appendChild(el('span', '', 'السؤال ' + (r.i + 1) + ' من ' + r.n));
+    head.appendChild(el('span', '', 'الصحيح: ' + r.score));
+    wrap.appendChild(head);
+    const bar = el('div', 'rbar'); const fill = el('i'); fill.style.width = (r.i / r.n * 100) + '%'; bar.appendChild(fill); wrap.appendChild(bar);
+    const s = r.qs[r.i];
+    wrap.appendChild(questionCard(s, 'تذكرة · ' + s.cat, r.i + 1 < r.n ? 'السؤال التالي' : 'عرض النتيجة',
+      good => { if (good) r.score++; else r.missed.push(s); head.lastChild.textContent = 'الصحيح: ' + r.score; fill.style.width = ((r.i + 1) / r.n * 100) + '%'; },
+      () => { r.i++; renderStories(); window.scrollTo({ top: storiesBox.offsetTop - 10, behavior: 'smooth' }); }));
+    const quit = el('button', 'linkbtn', 'إنهاء التحدي'); quit.type = 'button';
+    quit.onclick = () => { round = null; renderStories(); };
+    wrap.appendChild(quit);
+    return wrap;
+  }
+
+  function resultView() {
+    const r = round, pct = r.score / r.n;
+    const prev = parseInt(store.get('best-' + r.n), 10);
+    const isBest = isNaN(prev) || r.score > prev;
+    if (isBest) store.set('best-' + r.n, String(r.score));
+    if (pct >= .7) { sky().celebrate(); buzz([20, 40, 20]); }
+    const c = el('article', 'zekr in quiz'); c.style.cursor = 'default';
+    c.appendChild(el('div', 'label', 'نتيجتك'));
+    c.appendChild(el('div', 'score', r.score + ' / ' + r.n));
+    const bar = el('div', 'rbar'); const fill = el('i'); fill.style.width = (pct * 100) + '%'; bar.appendChild(fill); c.appendChild(bar);
+    c.appendChild(el('div', 'text', pct >= .9 ? 'ما شاء الله، تذكّرت أغلب ما سألناك عنه' : pct >= .6 ? 'جيد، وراجع التذكرات أدناه لتثبّتها' : 'لا بأس، التكرار يثبّت المعلومة فأعد المحاولة'));
+    if (isBest && r.score > 0) c.appendChild(el('div', 'ref', '✦ أفضل نتيجة لك في تحدّي ' + r.n + ' أسئلة'));
+    if (r.missed.length) {
+      c.appendChild(el('div', 'sec-title', 'تذكرات للمراجعة'));
+      r.missed.forEach(s => {
+        const m = el('div', 'missed');
+        m.appendChild(el('div', 'mq', s.q)); m.appendChild(el('div', 'ma', s.ok)); m.appendChild(el('div', 'ref', s.note));
+        c.appendChild(m);
+      });
+    }
+    const again = el('button', 'mark', 'إعادة التحدي'); again.type = 'button'; again.onclick = () => startRound(r.n);
+    const back = el('button', 'linkbtn', 'تغيير عدد الأسئلة'); back.type = 'button'; back.onclick = () => { round = null; renderStories(); };
+    c.appendChild(again); c.appendChild(back);
+    return c;
+  }
+
   function storyCard(s, idx) {
     const c = el('article', 'zekr in'); c.style.cursor = 'default';
     const head = el('button', 'story-head'); head.type = 'button'; head.setAttribute('aria-expanded', 'false');
@@ -185,7 +254,8 @@
   }
   function renderStories() {
     storiesBox.textContent = '';
-    storiesBox.appendChild(quizCard());
+    if (round) { storiesBox.appendChild(round.i >= round.n ? resultView() : roundView()); return; }
+    storiesBox.appendChild(launcher());
     storiesBox.appendChild(el('h3', 'sec-title', 'سيرة نبينا محمد صلى الله عليه وسلم'));
     SEERAH.forEach((s, i) => storiesBox.appendChild(storyCard(s, i)));
     storiesBox.appendChild(el('h3', 'sec-title', 'قصص الأنبياء السابقين'));
