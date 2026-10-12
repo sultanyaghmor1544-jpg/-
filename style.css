@@ -9,7 +9,8 @@
 }
 body.morning{--accent:#e9b05f;--accent-ink:#2a1a05;--fill:rgba(233,176,95,.28)}
 body.stories{--accent:#5fb8a8;--accent-ink:#04201b;--fill:rgba(95,184,168,.26)}
-body.stories .daily-card,body.stories .quick-actions{display:none}
+body.prayer{--accent:#6aa7e0;--accent-ink:#031a33;--fill:rgba(106,167,224,.26)}
+body.stories .daily-card,body.stories .quick-actions,body.prayer .daily-card,body.prayer .quick-actions{display:none}
 [hidden]{display:none!important}
 
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -32,7 +33,7 @@ body.welcoming main{opacity:0;visibility:hidden}
 .hero-copy h2{font-size:19px;line-height:1.5;margin:2px 0;font-weight:700}
 .hero-copy p{margin:0;color:var(--muted);font-size:14px}
 .tabs{display:flex;gap:8px}
-.tabs button{flex:1;border:1px solid var(--line);padding:10px;border-radius:12px;background:rgba(255,255,255,.06);color:var(--ink);cursor:pointer;font-size:15px}
+.tabs button{flex:1;border:1px solid var(--line);padding:10px 2px;border-radius:12px;background:rgba(255,255,255,.06);color:var(--ink);cursor:pointer;font-size:15px}
 .tabs small{font-size:13px;margin-right:4px}
 .tabs button.active{background:var(--accent);color:var(--accent-ink);border-color:transparent;font-weight:700}
 
@@ -108,6 +109,46 @@ body.welcoming main{opacity:0;visibility:hidden}
 .switch input:checked+span{background:var(--accent)}
 .switch input:checked+span:before{transform:translateX(-18px)}
 
+/* levels + board */
+.levels{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px}
+.lvl-btn{font:inherit;font-size:14px;padding:8px 2px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--ink);cursor:pointer}
+.lvl-btn.on{background:var(--accent);color:var(--accent-ink);border-color:transparent;font-weight:700}
+.board{margin-top:14px;padding-top:10px;border-top:1px solid var(--line);font-size:13px}
+.board .bt{font-size:12px;color:var(--muted);margin-bottom:6px}
+.brow{display:grid;grid-template-columns:1.2fr repeat(3,1fr);gap:4px;padding:5px 0;text-align:center;direction:rtl}
+.brow span:first-child{text-align:right;color:var(--muted)}
+.brow.h span{color:var(--muted);font-size:12px}
+.brow b{font-weight:500;direction:ltr;unicode-bidi:plaintext}
+.brow b.has{color:var(--accent)}
+/* prayer */
+.pnext{display:flex;align-items:baseline;justify-content:space-between;margin:2px 0 0}
+.pnext b{font-size:28px;font-weight:700;color:var(--accent)}
+.pnext span{font-size:20px}
+.pcount{font-size:14px;color:var(--muted);direction:rtl;margin-top:2px}
+.prow{display:flex;align-items:center;justify-content:space-between;padding:11px 2px;border-top:1px solid var(--line);font-size:16px}
+.prow:first-of-type{border-top:0}
+.prow.next{color:var(--accent);font-weight:700}
+.prow .pt{flex:1;margin-inline-start:18px;font-size:15px}
+.prow.sun{font-size:14px;color:var(--muted)}
+.prow .nosw{width:44px}
+.pnote{font-size:12px;color:var(--muted);line-height:1.9;margin:8px 2px 0}
+.compass{display:flex;justify-content:center;margin:6px 0}
+.compass svg{width:min(260px,80%);height:auto;overflow:visible}
+.cring{fill:rgba(255,255,255,.04);stroke:rgba(255,255,255,.22);stroke-width:1.5}
+.ctick{stroke:rgba(255,255,255,.35);stroke-width:1}
+.cn{fill:#fff;font-size:14px;font-weight:700;text-anchor:middle;font-family:inherit}
+.cl{fill:var(--muted);font-size:12px;text-anchor:middle;font-family:inherit}
+.cptr{fill:var(--accent)}
+.cline{stroke:var(--accent);stroke-width:2;stroke-dasharray:3 4}
+.ckaaba{fill:#16213a;stroke:#e9b05f;stroke-width:2}
+.ckband{fill:#e9b05f}
+.cdot{fill:var(--accent)}
+.aligned .cring{stroke:#4fbf8a;stroke-width:3}
+.qinfo{font-size:14px;line-height:1.9;text-align:center}
+.qstat{font-size:13px;color:var(--muted);text-align:center;margin:4px 0 6px;min-height:1.8em}
+.aligned .qstat{color:#4fbf8a}
+.qbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.qbtns .opt{text-align:center}
 /* stories */
 .rounds{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
 .round-btn{font:inherit;color:var(--ink);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:0;padding:12px 4px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.05)}

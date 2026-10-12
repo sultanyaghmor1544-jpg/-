@@ -11,13 +11,13 @@
   const buzz = p => { try { navigator.vibrate && navigator.vibrate(p); } catch (_) {} };
 
   const morningTab = $('#morningTab'), eveningTab = $('#eveningTab'), list = $('#adhkar'),
-    storiesTab = $('#storiesTab'), storiesBox = $('#stories'),
+    storiesTab = $('#storiesTab'), storiesBox = $('#stories'), prayerTab = $('#prayerTab'), prayerBox = $('#prayer'),
     notifyBtn = $('#notifyBtn'), notifyStatus = $('#notifyStatus'), nextPrayer = $('#nextPrayer'),
     progressText = $('#progressText'), progressLabel = $('#progressLabel'), progressRing = $('.progress-ring'),
     welcome = $('#welcome'), toast = $('#toast');
 
   const savedMode = store.get('thakir-mode');
-  let mode = savedMode === 'evening' || savedMode === 'stories' ? savedMode : 'morning';
+  let mode = savedMode === 'evening' || savedMode === 'stories' || savedMode === 'prayer' ? savedMode : 'morning';
   const items = () => (mode === 'evening' ? EVENING : MORNING);
   const skyMode = () => (mode === 'morning' ? 'morning' : 'evening');
   const today = () => new Date().toLocaleDateString('en-CA');
@@ -121,12 +121,14 @@
   }
 
   function render() {
-    document.body.classList.remove('morning', 'evening', 'stories'); document.body.classList.add(mode);
-    [[morningTab, 'morning'], [eveningTab, 'evening'], [storiesTab, 'stories']].forEach(([b, m]) => { b.classList.toggle('active', mode === m); b.setAttribute('aria-pressed', mode === m); });
-    const isStories = mode === 'stories';
-    $('#heroTitle').textContent = isStories ? 'تذكرة وعِبرة' : mode === 'morning' ? 'ابدأ صباحك بالذكر' : 'اختم يومك بالذكر';
-    $('#greeting').textContent = isStories ? 'تذكّر' : mode === 'morning' ? 'صباح الخير' : 'مساء الخير';
-    list.hidden = isStories; storiesBox.hidden = !isStories;
+    document.body.classList.remove('morning', 'evening', 'stories', 'prayer'); document.body.classList.add(mode);
+    [[morningTab, 'morning'], [eveningTab, 'evening'], [storiesTab, 'stories'], [prayerTab, 'prayer']].forEach(([b, m]) => { b.classList.toggle('active', mode === m); b.setAttribute('aria-pressed', mode === m); });
+    const isStories = mode === 'stories', isPrayer = mode === 'prayer';
+    $('#heroTitle').textContent = isPrayer ? 'مواقيت الصلاة والقبلة' : isStories ? 'تذكرة وعِبرة' : mode === 'morning' ? 'ابدأ صباحك بالذكر' : 'اختم يومك بالذكر';
+    $('#greeting').textContent = isPrayer ? 'جدة' : isStories ? 'تذكّر' : mode === 'morning' ? 'صباح الخير' : 'مساء الخير';
+    list.hidden = isStories || isPrayer; storiesBox.hidden = !isStories; prayerBox.hidden = !isPrayer;
+    if (!isPrayer) stopPrayerUI();
+    if (isPrayer) { renderPrayer(); return; }
     if (isStories) { renderStories(); return; }
     list.textContent = '';
     const frag = document.createDocumentFragment();
@@ -141,6 +143,9 @@
   const POOL = TRIVIA;
   const shuffle = arr => arr.map(x => ({ x, r: Math.random() })).sort((p, q) => p.r - q.r).map(o => o.x);
   const ROUNDS = [5, 10, 20];
+  const LV = { all: 'منوّع', 1: 'سهل', 2: 'متوسط', 3: 'صعب' };
+  let level = ['all', '1', '2', '3'].includes(store.get('thakir-level')) ? store.get('thakir-level') : 'all';
+  const poolFor = l => (l === 'all' ? POOL : POOL.filter(x => String(x.lvl) === String(l)));
   let round = null;
 
   function questionCard(s, label, nextText, onAnswer, onNext) {
@@ -173,24 +178,41 @@
 
   function launcher() {
     const c = el('article', 'zekr in quiz'); c.style.cursor = 'default';
-    c.appendChild(el('div', 'label', 'تحدّي التذكرة'));
-    c.appendChild(el('div', 'text', 'اختر عدد الأسئلة وانظر كم تجيب'));
+    c.appendChild(el('div', 'label', 'تحدّي التذكرة · ' + POOL.length + ' سؤال'));
+    c.appendChild(el('div', 'text', 'اختر المستوى وعدد الأسئلة وانظر كم تجيب'));
+    const lv = el('div', 'levels');
+    ['all', '1', '2', '3'].forEach(k => {
+      const b = el('button', 'lvl-btn' + (level === k ? ' on' : ''), LV[k]); b.type = 'button';
+      b.onclick = () => { level = k; store.set('thakir-level', k); renderStories(); };
+      lv.appendChild(b);
+    });
+    c.appendChild(lv);
     const grid = el('div', 'rounds');
+    const size = poolFor(level).length;
     ROUNDS.forEach(n => {
       const b = el('button', 'round-btn'); b.type = 'button';
       b.appendChild(el('b', '', String(n)));
       b.appendChild(el('span', '', 'أسئلة'));
-      const best = store.get('best-' + n);
+      const best = store.get('best-' + level + '-' + n);
       b.appendChild(el('small', '', best !== null && best !== undefined ? 'أفضل: ' + best + '/' + n : 'لم تبدأ بعد'));
-      b.onclick = () => startRound(n);
+      b.onclick = () => startRound(Math.min(n, size));
       grid.appendChild(b);
     });
     c.appendChild(grid);
+    const board = el('div', 'board');
+    board.appendChild(el('div', 'bt', 'لوحة أرقامك'));
+    const hd = el('div', 'brow h'); hd.appendChild(el('span', '', '')); ROUNDS.forEach(n => hd.appendChild(el('span', '', n + ' أسئلة'))); board.appendChild(hd);
+    ['1', '2', '3', 'all'].forEach(k => {
+      const r = el('div', 'brow'); r.appendChild(el('span', '', LV[k]));
+      ROUNDS.forEach(n => { const v = store.get('best-' + k + '-' + n); r.appendChild(el('b', v !== null && v !== undefined ? 'has' : '', v !== null && v !== undefined ? v + '/' + n : '-')); });
+      board.appendChild(r);
+    });
+    c.appendChild(board);
     return c;
   }
 
   function startRound(n) {
-    round = { n, i: 0, score: 0, qs: shuffle(POOL).slice(0, n), missed: [] };
+    round = { n, level, i: 0, score: 0, qs: shuffle(poolFor(level)).slice(0, n), missed: [] };
     renderStories(); storiesBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
@@ -198,12 +220,12 @@
     const r = round;
     const wrap = document.createDocumentFragment();
     const head = el('div', 'rhead');
-    head.appendChild(el('span', '', 'السؤال ' + (r.i + 1) + ' من ' + r.n));
+    head.appendChild(el('span', '', 'السؤال ' + (r.i + 1) + ' من ' + r.n + ' · ' + LV[r.level]));
     head.appendChild(el('span', '', 'الصحيح: ' + r.score));
     wrap.appendChild(head);
     const bar = el('div', 'rbar'); const fill = el('i'); fill.style.width = (r.i / r.n * 100) + '%'; bar.appendChild(fill); wrap.appendChild(bar);
     const s = r.qs[r.i];
-    wrap.appendChild(questionCard(s, 'تذكرة · ' + s.cat, r.i + 1 < r.n ? 'السؤال التالي' : 'عرض النتيجة',
+    wrap.appendChild(questionCard(s, 'تذكرة · ' + s.cat + ' · ' + LV[s.lvl], r.i + 1 < r.n ? 'السؤال التالي' : 'عرض النتيجة',
       good => { if (good) r.score++; else r.missed.push(s); head.lastChild.textContent = 'الصحيح: ' + r.score; fill.style.width = ((r.i + 1) / r.n * 100) + '%'; },
       () => { r.i++; renderStories(); window.scrollTo({ top: storiesBox.offsetTop - 10, behavior: 'smooth' }); }));
     const quit = el('button', 'linkbtn', 'إنهاء التحدي'); quit.type = 'button';
@@ -214,16 +236,16 @@
 
   function resultView() {
     const r = round, pct = r.score / r.n;
-    const prev = parseInt(store.get('best-' + r.n), 10);
+    const prev = parseInt(store.get('best-' + r.level + '-' + r.n), 10);
     const isBest = isNaN(prev) || r.score > prev;
-    if (isBest) store.set('best-' + r.n, String(r.score));
+    if (isBest) store.set('best-' + r.level + '-' + r.n, String(r.score));
     if (pct >= .7) { sky().celebrate(); buzz([20, 40, 20]); }
     const c = el('article', 'zekr in quiz'); c.style.cursor = 'default';
     c.appendChild(el('div', 'label', 'نتيجتك'));
     c.appendChild(el('div', 'score', r.score + ' / ' + r.n));
     const bar = el('div', 'rbar'); const fill = el('i'); fill.style.width = (pct * 100) + '%'; bar.appendChild(fill); c.appendChild(bar);
     c.appendChild(el('div', 'text', pct >= .9 ? 'ما شاء الله، تذكّرت أغلب ما سألناك عنه' : pct >= .6 ? 'جيد، وراجع التذكرات أدناه لتثبّتها' : 'لا بأس، التكرار يثبّت المعلومة فأعد المحاولة'));
-    if (isBest && r.score > 0) c.appendChild(el('div', 'ref', '✦ أفضل نتيجة لك في تحدّي ' + r.n + ' أسئلة'));
+    if (isBest && r.score > 0) c.appendChild(el('div', 'ref', '✦ أفضل نتيجة لك في ' + LV[r.level] + ' · ' + r.n + ' أسئلة'));
     if (r.missed.length) {
       c.appendChild(el('div', 'sec-title', 'تذكرات للمراجعة'));
       r.missed.forEach(s => {
@@ -233,7 +255,7 @@
       });
     }
     const again = el('button', 'mark', 'إعادة التحدي'); again.type = 'button'; again.onclick = () => startRound(r.n);
-    const back = el('button', 'linkbtn', 'تغيير عدد الأسئلة'); back.type = 'button'; back.onclick = () => { round = null; renderStories(); };
+    const back = el('button', 'linkbtn', 'تغيير المستوى أو العدد'); back.type = 'button'; back.onclick = () => { round = null; renderStories(); };
     c.appendChild(again); c.appendChild(back);
     return c;
   }
@@ -269,6 +291,7 @@
   morningTab.onclick = () => setMode('morning');
   eveningTab.onclick = () => setMode('evening');
   storiesTab.onclick = () => setMode('stories');
+  prayerTab.onclick = () => setMode('prayer');
 
   $('#continueBtn').onclick = () => {
     const next = [...list.querySelectorAll('.zekr')].find(c => !c.classList.contains('complete'));
@@ -284,45 +307,200 @@
   };
   if (store.get('thakir-welcomed') === '1') welcome.classList.add('hidden'); else { welcome.setAttribute('aria-hidden', 'false'); document.body.classList.add('welcoming'); }
 
-  /* ---------- prayer times + in-page reminders ---------- */
+  /* ---------- prayer times + reminders (Jeddah) ---------- */
+  const PRAYERS = [['Fajr', 'الفجر'], ['Dhuhr', 'الظهر'], ['Asr', 'العصر'], ['Maghrib', 'المغرب'], ['Isha', 'العشاء']];
+  const RIYADH = 3 * 3600e3;
+  const rdate = () => new Date(Date.now() + RIYADH).toISOString().slice(0, 10);
+  const instant = (hhmm, addDays) => {
+    const [h, m] = String(hhmm).slice(0, 5).split(':').map(Number), s = new Date(Date.now() + RIYADH);
+    return Date.UTC(s.getUTCFullYear(), s.getUTCMonth(), s.getUTCDate() + (addDays || 0), h - 3, m);
+  };
+  const fmt12 = hhmm => { const [h, m] = String(hhmm).slice(0, 5).split(':').map(Number); return ((h % 12) || 12) + ':' + String(m).padStart(2, '0') + ' ' + (h >= 12 ? 'م' : 'ص'); };
   const timers = {};
   const notifyOn = type => store.get('thakir-notify-' + type) !== '0';
-  async function showReminder(type) {
+  const prayOn = k => store.get('thakir-pray-' + k) === '1';
+  let ptimes = null, tick = null, qiblaCleanup = null;
+
+  async function notify(title, body, tag) {
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
-    const title = type === 'fajr' ? 'أذكار الصباح' : 'أذكار المساء';
-    const body = type === 'fajr' ? 'حان وقت أذكار الصباح 🌅' : 'حان وقت أذكار المساء 🌙';
     try {
       const reg = navigator.serviceWorker && await navigator.serviceWorker.ready;
-      if (reg && reg.showNotification) { await reg.showNotification(title, { body, icon: 'icon.png', badge: 'icon.png', dir: 'rtl', lang: 'ar' }); return; }
+      if (reg && reg.showNotification) { await reg.showNotification(title, { body, tag, icon: 'icon.png', badge: 'icon.png', dir: 'rtl', lang: 'ar' }); return; }
     } catch (_) {}
-    try { new Notification(title, { body, icon: 'icon.png' }); } catch (_) {}
+    try { new Notification(title, { body, icon: 'icon.png', tag }); } catch (_) {}
   }
-  function scheduleInPage(type, time) {
-    const [h, m] = String(time).slice(0, 5).split(':').map(Number);
-    if (!Number.isFinite(h) || !Number.isFinite(m)) return;
-    const now = new Date(), target = new Date(); target.setHours(h, m, 0, 0);
-    if (target <= now) target.setDate(target.getDate() + 1);
-    clearTimeout(timers[type]);
-    timers[type] = setTimeout(() => { if (notifyOn(type)) showReminder(type); scheduleInPage(type, time); }, target - now);
+  function nextPrayerInfo() {
+    if (!ptimes) return null;
+    const now = Date.now();
+    for (const [k, n] of PRAYERS) { const t = instant(ptimes[k]); if (t > now) return { k, n, t }; }
+    return { k: 'Fajr', n: 'الفجر', t: instant(ptimes.Fajr, 1) };
   }
-  function showTimes(t) {
-    nextPrayer.textContent = `الفجر ${String(t.Fajr).slice(0, 5)}  •  العصر ${String(t.Asr).slice(0, 5)}`;
-    scheduleInPage('fajr', t.Fajr); scheduleInPage('asr', t.Asr);
+  function updateNextText() {
+    const x = nextPrayerInfo();
+    if (x) nextPrayer.textContent = 'الصلاة القادمة: ' + x.n + ' ' + fmt12(ptimes[x.k]);
   }
+  function scheduleAll() {
+    Object.values(timers).forEach(clearTimeout);
+    if (!ptimes) return;
+    const now = Date.now();
+    PRAYERS.forEach(([k, n]) => {
+      const t = instant(ptimes[k]);
+      if (t <= now) return;
+      if (prayOn(k)) timers['p' + k] = setTimeout(() => notify('حان وقت صلاة ' + n, 'قم إلى الصلاة، تقبّل الله منك', 'prayer-' + k), t - now);
+      if (k === 'Fajr' && notifyOn('fajr')) timers.adhkarFajr = setTimeout(() => notify('أذكار الصباح', 'حان وقت أذكار الصباح 🌅', 'adhkar-fajr'), t - now);
+      if (k === 'Asr' && notifyOn('asr')) timers.adhkarAsr = setTimeout(() => notify('أذكار المساء', 'حان وقت أذكار المساء 🌙', 'adhkar-asr'), t - now);
+    });
+    const s = new Date(now + RIYADH), midnight = Date.UTC(s.getUTCFullYear(), s.getUTCMonth(), s.getUTCDate() + 1, -3, 5);
+    timers.refresh = setTimeout(prayerTimes, midnight - now);
+  }
+  function applyTimes(t) { ptimes = t; updateNextText(); scheduleAll(); if (mode === 'prayer') renderPrayer(); }
   async function prayerTimes() {
-    let cached = null; try { cached = JSON.parse(store.get('thakir-times') || 'null'); } catch (_) {}
-    if (cached && cached.day === today()) { showTimes(cached); return; }
+    let cached = null; try { cached = JSON.parse(store.get('thakir-times2') || 'null'); } catch (_) {}
+    if (cached && cached.day === rdate()) { applyTimes(cached); return; }
     try {
       const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 9000);
       const r = await fetch('https://api.aladhan.com/v1/timingsByCity?city=Jeddah&country=Saudi%20Arabia&method=4', { signal: ctl.signal });
       clearTimeout(to);
-      const t = (await r.json()).data.timings;
-      store.set('thakir-times', JSON.stringify({ day: today(), Fajr: t.Fajr, Asr: t.Asr }));
-      showTimes(t);
+      const t = (await r.json()).data.timings, o = { day: rdate() };
+      ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].forEach(k => { o[k] = String(t[k]).slice(0, 5); });
+      store.set('thakir-times2', JSON.stringify(o)); applyTimes(o);
     } catch (_) {
-      if (cached) showTimes(cached);
-      else nextPrayer.textContent = 'فعّل الإنترنت لحساب وقت الفجر والعصر في جدة';
+      if (cached) applyTimes(cached);
+      else { nextPrayer.textContent = 'فعّل الإنترنت لحساب مواقيت الصلاة في جدة'; if (mode === 'prayer') renderPrayer(); }
     }
+  }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) prayerTimes(); });
+
+  /* ---------- prayer tab UI ---------- */
+  function stopPrayerUI() {
+    clearInterval(tick); tick = null;
+    if (qiblaCleanup) { qiblaCleanup(); qiblaCleanup = null; }
+  }
+  const pad2 = n => String(n).padStart(2, '0');
+  const fmtLeft = ms => { const s = Math.max(0, Math.floor(ms / 1000)); return pad2(Math.floor(s / 3600)) + ':' + pad2(Math.floor(s % 3600 / 60)) + ':' + pad2(s % 60); };
+
+  function renderPrayer() {
+    stopPrayerUI();
+    prayerBox.textContent = '';
+    if (!ptimes) {
+      const c = el('article', 'zekr in'); c.style.cursor = 'default';
+      c.appendChild(el('div', 'label', 'مواقيت جدة'));
+      c.appendChild(el('div', 'text', 'فعّل الإنترنت لحساب مواقيت الصلاة في جدة'));
+      prayerBox.appendChild(c);
+    } else {
+      const nx = nextPrayerInfo();
+      const c = el('article', 'zekr in'); c.style.cursor = 'default';
+      c.appendChild(el('div', 'label', 'الصلاة القادمة · جدة'));
+      const big = el('div', 'pnext'); big.appendChild(el('b', '', nx.n)); big.appendChild(el('span', '', fmt12(ptimes[nx.k]))); c.appendChild(big);
+      const cd = el('div', 'pcount'); c.appendChild(cd);
+      const upd = () => { const left = nx.t - Date.now(); if (left <= 0) { renderPrayer(); return; } cd.textContent = 'بعد ' + fmtLeft(left); };
+      upd(); tick = setInterval(upd, 1000);
+      prayerBox.appendChild(c);
+
+      const lc = el('article', 'zekr in'); lc.style.cursor = 'default';
+      lc.appendChild(el('div', 'label', 'مواقيت اليوم · فعّل التذكير لكل صلاة'));
+      [['Fajr', 'الفجر'], ['Sunrise', 'الشروق'], ['Dhuhr', 'الظهر'], ['Asr', 'العصر'], ['Maghrib', 'المغرب'], ['Isha', 'العشاء']].forEach(([k, n]) => {
+        const row = el('div', 'prow' + (k === nx.k ? ' next' : '') + (k === 'Sunrise' ? ' sun' : ''));
+        row.appendChild(el('span', '', n)); row.appendChild(el('span', 'pt', fmt12(ptimes[k])));
+        if (k === 'Sunrise') row.appendChild(el('span', 'nosw'));
+        else {
+          const lab = el('label', 'switch'), inp = document.createElement('input'); inp.type = 'checkbox'; inp.checked = prayOn(k);
+          inp.setAttribute('aria-label', 'تذكير ' + n);
+          inp.onchange = async () => {
+            if (inp.checked) {
+              let ok = 'Notification' in window && Notification.permission === 'granted';
+              if (!ok && 'Notification' in window) { try { ok = (await Notification.requestPermission()) === 'granted'; } catch (_) {} }
+              if (!ok) { inp.checked = false; showToast('فعّل الإشعارات من إعدادات المتصفح أو الجهاز'); return; }
+            }
+            store.set('thakir-pray-' + k, inp.checked ? '1' : '0'); scheduleAll();
+          };
+          lab.appendChild(inp); lab.appendChild(document.createElement('span')); row.appendChild(lab);
+        }
+        lc.appendChild(row);
+      });
+      const test = el('button', 'linkbtn', 'جرّب تنبيهًا الآن'); test.type = 'button';
+      test.onclick = async () => {
+        let ok = 'Notification' in window && Notification.permission === 'granted';
+        if (!ok && 'Notification' in window) { try { ok = (await Notification.requestPermission()) === 'granted'; } catch (_) {} }
+        if (ok) { notify('ذَكِّر', 'هكذا سيصلك تنبيه الصلاة ✦', 'test'); showToast('أُرسل التنبيه'); } else showToast('الإشعارات غير مفعّلة');
+      };
+      lc.appendChild(test);
+      lc.appendChild(el('p', 'pnote', 'المواقيت لمدينة جدة (أم القرى). تعمل التنبيهات ما دام التطبيق مفتوحًا أو في الخلفية، وقد يوقفها الجهاز إذا أُغلق التطبيق تمامًا.'));
+      prayerBox.appendChild(lc);
+    }
+    prayerBox.appendChild(qiblaCard());
+  }
+
+  /* ---------- qibla ---------- */
+  const KAABA = { lat: 21.4225, lon: 39.8262 };
+  const rad = d => d * Math.PI / 180, deg = r => r * 180 / Math.PI;
+  const qiblaBearing = (lat, lon) => {
+    const p1 = rad(lat), p2 = rad(KAABA.lat), dl = rad(KAABA.lon - lon);
+    return (deg(Math.atan2(Math.sin(dl) * Math.cos(p2), Math.cos(p1) * Math.sin(p2) - Math.sin(p1) * Math.cos(p2) * Math.cos(dl))) + 360) % 360;
+  };
+  const distKm = (lat, lon) => {
+    const dp = rad(KAABA.lat - lat), dl = rad(KAABA.lon - lon), a = Math.sin(dp / 2) ** 2 + Math.cos(rad(lat)) * Math.cos(rad(KAABA.lat)) * Math.sin(dl / 2) ** 2;
+    return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  };
+  let loc = null; try { loc = JSON.parse(store.get('thakir-loc') || 'null'); } catch (_) {}
+  if (!loc || typeof loc.lat !== 'number') loc = { lat: 21.4858, lon: 39.1925, name: 'جدة' };
+
+  function qiblaCard() {
+    const q = qiblaBearing(loc.lat, loc.lon);
+    const c = el('article', 'zekr in'); c.style.cursor = 'default';
+    c.appendChild(el('div', 'label', 'اتجاه القبلة'));
+    let ticks = '';
+    for (let i = 0; i < 36; i++) { const a = rad(i * 10), r1 = 100, r2 = i % 9 === 0 ? 88 : 94; ticks += `<line class="ctick" x1="${120 + r1 * Math.sin(a)}" y1="${130 - r1 * Math.cos(a)}" x2="${120 + r2 * Math.sin(a)}" y2="${130 - r2 * Math.cos(a)}"/>`; }
+    const wrap = el('div', 'compass');
+    wrap.innerHTML = `<svg viewBox="0 0 240 250" role="img" aria-label="بوصلة القبلة"><polygon class="cptr" points="120,2 111,20 129,20"/><g id="cdial"><circle class="cring" cx="120" cy="130" r="100"/>${ticks}<text class="cn" x="120" y="62">N</text><text class="cl" x="184" y="134">E</text><text class="cl" x="120" y="206">S</text><text class="cl" x="56" y="134">W</text><g id="ckaaba" transform="rotate(${q.toFixed(1)} 120 130)"><line class="cline" x1="120" y1="130" x2="120" y2="52"/><rect class="ckaaba" x="108" y="20" width="24" height="24" rx="4"/><rect class="ckband" x="108" y="27" width="24" height="4"/></g></g><circle class="cdot" cx="120" cy="130" r="4"/></svg>`;
+    c.appendChild(wrap);
+    const dist = Math.round(distKm(loc.lat, loc.lon));
+    c.appendChild(el('div', 'qinfo', 'القبلة ' + Math.round(q) + '° من الشمال · ' + (loc.name || 'موقعك') + ' · ' + dist + ' كم إلى الكعبة'));
+    const stat = el('div', 'qstat', 'ضع الجوال أفقيًا ثم اضغط «تشغيل البوصلة»'); c.appendChild(stat);
+    const btns = el('div', 'qbtns');
+    const startBtn = el('button', 'opt', 'تشغيل البوصلة'); startBtn.type = 'button';
+    const locBtn = el('button', 'opt', 'استخدم موقعي'); locBtn.type = 'button';
+    btns.appendChild(startBtn); btns.appendChild(locBtn); c.appendChild(btns);
+
+    const dial = wrap.querySelector('#cdial');
+    let heading = null, aligned = false, got = false;
+    const setHeading = h => {
+      if (heading === null) heading = h; else { const d = ((h - heading + 540) % 360) - 180; heading = (heading + d * 0.3 + 360) % 360; }
+      dial.setAttribute('transform', 'rotate(' + (-heading).toFixed(1) + ' 120 130)');
+      const ok = Math.abs(((q - heading + 540) % 360) - 180) < 5;
+      c.classList.toggle('aligned', ok);
+      stat.textContent = ok ? 'أنت متجه نحو القبلة ✓' : 'أدر الجوال حتى تصل الكعبة إلى أعلى';
+      if (ok && !aligned) buzz(20);
+      aligned = ok;
+    };
+    const onOri = e => {
+      let h = null;
+      if (typeof e.webkitCompassHeading === 'number') h = e.webkitCompassHeading;
+      else if ((e.type === 'deviceorientationabsolute' || e.absolute) && e.alpha !== null && e.alpha !== undefined) h = (360 - e.alpha + ((screen.orientation && screen.orientation.angle) || 0)) % 360;
+      if (h === null || Number.isNaN(h)) return;
+      got = true; setHeading(h);
+    };
+    startBtn.onclick = async () => {
+      try {
+        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+          if ((await DeviceOrientationEvent.requestPermission()) !== 'granted') { stat.textContent = 'لم يُسمح باستخدام البوصلة'; return; }
+        }
+        window.addEventListener('deviceorientationabsolute', onOri, true);
+        window.addEventListener('deviceorientation', onOri, true);
+        stat.textContent = 'جاري قراءة البوصلة…';
+        setTimeout(() => { if (!got) stat.textContent = 'لا توجد قراءة من مستشعر البوصلة. القبلة ' + Math.round(q) + '° من الشمال، فاستعن ببوصلة الجوال.'; }, 2500);
+      } catch (_) { stat.textContent = 'تعذّر تشغيل البوصلة على هذا الجهاز'; }
+    };
+    locBtn.onclick = () => {
+      if (!navigator.geolocation) { stat.textContent = 'الموقع غير مدعوم على هذا الجهاز'; return; }
+      stat.textContent = 'جاري تحديد موقعك…';
+      navigator.geolocation.getCurrentPosition(p => {
+        loc = { lat: p.coords.latitude, lon: p.coords.longitude, name: 'موقعك الحالي' };
+        store.set('thakir-loc', JSON.stringify(loc)); renderPrayer();
+      }, () => { stat.textContent = 'لم يُسمح بالوصول للموقع، نستخدم جدة'; }, { timeout: 10000 });
+    };
+    qiblaCleanup = () => { window.removeEventListener('deviceorientationabsolute', onOri, true); window.removeEventListener('deviceorientation', onOri, true); };
+    return c;
   }
 
   /* ---------- push ---------- */
