@@ -412,20 +412,33 @@
               if (!ok && 'Notification' in window) { try { ok = (await Notification.requestPermission()) === 'granted'; } catch (_) {} }
               if (!ok) { inp.checked = false; showToast('فعّل الإشعارات من إعدادات المتصفح أو الجهاز'); return; }
             }
-            store.set('thakir-pray-' + k, inp.checked ? '1' : '0'); scheduleAll();
+            store.set('thakir-pray-' + k, inp.checked ? '1' : '0'); scheduleAll(); syncPrefs();
           };
           lab.appendChild(inp); lab.appendChild(document.createElement('span')); row.appendChild(lab);
         }
         lc.appendChild(row);
       });
+      const pushRow = el('button', 'linkbtn', 'جاري فحص الإشعارات الخارجية…'); pushRow.type = 'button';
+      pushSub().then(sub => { pushRow.textContent = sub ? 'الإشعارات الخارجية مفعّلة ✓ (تصل والتطبيق مغلق)' : 'فعّل الإشعارات الخارجية لتصلك والتطبيق مغلق'; pushRow.dataset.on = sub ? '1' : '0'; });
+      pushRow.onclick = async () => {
+        if (pushRow.dataset.on === '1') return;
+        try { pushRow.textContent = 'جاري التفعيل…'; const ok = await enablePush(); if (ok) { await syncPrefs(); renderPrayer(); } else pushRow.textContent = 'تعذّر التفعيل. تأكد من السماح بالإشعارات'; }
+        catch (_) { pushRow.textContent = 'تعذّر التفعيل. حاول مرة أخرى'; }
+      };
+      lc.appendChild(pushRow);
       const test = el('button', 'linkbtn', 'جرّب تنبيهًا الآن'); test.type = 'button';
       test.onclick = async () => {
+        const sub = await pushSub();
+        if (sub) {
+          try { const r = await fetch(PUSH_WORKER + '/test', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ subscription: sub.toJSON() }) }); const j = await r.json(); showToast(j.ok ? 'أُرسل التنبيه من السيرفر، انتظر ثوانٍ' : 'السيرفر رفض الإرسال (رمز ' + (j.status || r.status) + ')'); } catch (_) { showToast('تعذّر الوصول للسيرفر'); }
+          return;
+        }
         let ok = 'Notification' in window && Notification.permission === 'granted';
         if (!ok && 'Notification' in window) { try { ok = (await Notification.requestPermission()) === 'granted'; } catch (_) {} }
         if (ok) { notify('ذَكِّر', 'هكذا سيصلك تنبيه الصلاة ✦', 'test'); showToast('أُرسل التنبيه'); } else showToast('الإشعارات غير مفعّلة');
       };
       lc.appendChild(test);
-      lc.appendChild(el('p', 'pnote', 'المواقيت لمدينة جدة (أم القرى). تعمل التنبيهات ما دام التطبيق مفتوحًا أو في الخلفية، وقد يوقفها الجهاز إذا أُغلق التطبيق تمامًا.'));
+      lc.appendChild(el('p', 'pnote', 'المواقيت لمدينة جدة (أم القرى). تعمل التنبيهات داخل التطبيق ما دام مفتوحًا أو في الخلفية، وللتنبيه والتطبيق مغلق فعّل الإشعارات الخارجية أعلاه.'));
       prayerBox.appendChild(lc);
     }
     prayerBox.appendChild(qiblaCard());
@@ -510,6 +523,14 @@
     for (let i = 0; i < raw.length; ++i) out[i] = raw.charCodeAt(i);
     return out;
   }
+  async function pushSub() {
+    try { const reg = await navigator.serviceWorker.ready; return await reg.pushManager.getSubscription(); } catch (_) { return null; }
+  }
+  const currentPrefs = () => ({ fajr: prayOn('Fajr'), dhuhr: prayOn('Dhuhr'), asr: prayOn('Asr'), maghrib: prayOn('Maghrib'), isha: prayOn('Isha'), adhkarFajr: notifyOn('fajr'), adhkarAsr: notifyOn('asr') });
+  async function syncPrefs() {
+    const sub = await pushSub(); if (!sub) return;
+    try { await fetch(PUSH_WORKER + '/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ subscription: sub.toJSON(), prefs: currentPrefs() }) }); } catch (_) {}
+  }
   async function enablePush() {
     if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) { alert('هذا الجهاز لا يدعم إشعارات Push للموقع.'); return false; }
     const permission = await Notification.requestPermission();
@@ -522,7 +543,7 @@
       const publicKey = (await keyResponse.text()).trim();
       subscription = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(publicKey) });
     }
-    const response = await fetch(PUSH_WORKER + '/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(subscription) });
+    const response = await fetch(PUSH_WORKER + '/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ subscription: subscription.toJSON(), prefs: currentPrefs() }) });
     if (!response.ok) throw new Error('تعذر حفظ اشتراك الإشعارات');
     notifyStatus.textContent = 'تم تفعيل الإشعارات ✅';
     return true;
@@ -542,7 +563,7 @@
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
   [['morningNotify', 'fajr'], ['eveningNotify', 'asr']].forEach(([id, type]) => {
     const box = $('#' + id); box.checked = notifyOn(type);
-    box.addEventListener('change', () => store.set('thakir-notify-' + type, box.checked ? '1' : '0'));
+    box.addEventListener('change', () => { store.set('thakir-notify-' + type, box.checked ? '1' : '0'); syncPrefs(); });
   });
 
   /* ---------- go ---------- */
@@ -550,4 +571,5 @@
   sky().setMode(skyMode(), true);
   render();
   prayerTimes();
+  syncPrefs();
 })();

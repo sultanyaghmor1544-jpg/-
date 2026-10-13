@@ -1,4 +1,4 @@
-const CACHE='thakir-v22';
+const CACHE='thakir-v23';
 const ASSETS=['./','./index.html','./style.css','./app.js','./sky.js','./data.js','./stories.js','./trivia.js','./manifest.json','./icon.svg','./icon.png','./icon-192.png','./icon-maskable.png','./apple-touch-icon.png'];
 
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
@@ -25,7 +25,7 @@ self.addEventListener('fetch',e=>{
 self.addEventListener('push',e=>{
   let data={title:'ذَكِّر',body:'حان وقت الأذكار 🌿',icon:'./icon.png'};
   try{if(e.data)data={...data,...e.data.json()}}catch(_){}
-  e.waitUntil(self.registration.showNotification(data.title,{body:data.body,icon:data.icon,badge:data.icon,dir:'rtl',lang:'ar'}));
+  e.waitUntil(self.registration.showNotification(data.title,{body:data.body,icon:data.icon,badge:data.icon,dir:'rtl',lang:'ar',tag:data.tag||undefined}));
 });
 
 self.addEventListener('notificationclick',e=>{
