@@ -128,7 +128,13 @@ body.welcoming main{opacity:0;visibility:hidden}
 .prow{display:flex;align-items:center;justify-content:space-between;padding:11px 2px;border-top:1px solid var(--line);font-size:16px}
 .prow:first-of-type{border-top:0}
 .prow.next{color:var(--accent);font-weight:700}
-.prow .pt{flex:1;margin-inline-start:18px;font-size:15px}
+.prow .pt{flex:1;margin-inline-start:18px;font-size:15px;display:flex;flex-direction:column;line-height:1.5}
+.prow .pt small{font-size:12px;color:var(--muted);font-weight:400}
+.iqedit{padding:4px 0 2px}
+.iqrow{display:flex;align-items:center;gap:10px;padding:6px 2px;font-size:15px}
+.iqrow span{width:64px}
+.iqrow small{color:var(--muted);font-size:12px}
+.iqrow input{width:64px;font:inherit;font-size:16px;text-align:center;color:var(--ink);background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:8px;padding:6px 4px;direction:ltr}
 .prow.sun{font-size:14px;color:var(--muted)}
 .prow .nosw{width:44px}
 .pnote{font-size:12px;color:var(--muted);line-height:1.9;margin:8px 2px 0}

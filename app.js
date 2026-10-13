@@ -316,6 +316,11 @@
     return Date.UTC(s.getUTCFullYear(), s.getUTCMonth(), s.getUTCDate() + (addDays || 0), h - 3, m);
   };
   const fmt12 = hhmm => { const [h, m] = String(hhmm).slice(0, 5).split(':').map(Number); return ((h % 12) || 12) + ':' + String(m).padStart(2, '0') + ' ' + (h >= 12 ? 'م' : 'ص'); };
+  const hhmmPlus = (hhmm, mins) => { const [h, m] = String(hhmm).slice(0, 5).split(':').map(Number), t = (h * 60 + m + mins) % 1440; return String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'); };
+  const IQ_DEF = { Fajr: 25, Dhuhr: 20, Asr: 20, Maghrib: 10, Isha: 20 };
+  const iqMin = k => { try { const v = parseInt(JSON.parse(store.get('thakir-iqama-min') || '{}')[k], 10); return v > 0 ? v : IQ_DEF[k]; } catch (_) { return IQ_DEF[k]; } };
+  const iqBefore = () => { const v = store.get('thakir-iqama-before'); return v === null || v === undefined ? 5 : (parseInt(v, 10) || 0); };
+  let iqEdit = false;
   const timers = {};
   const notifyOn = type => store.get('thakir-notify-' + type) !== '0';
   const prayOn = k => store.get('thakir-pray-' + k) === '1';
@@ -344,7 +349,11 @@
     if (!ptimes) return;
     const now = Date.now();
     PRAYERS.forEach(([k, n]) => {
-      const t = instant(ptimes[k]);
+      const t = instant(ptimes[k]), bf = iqBefore();
+      if (prayOn(k) && bf > 0 && iqMin(k) > bf) {
+        const ti = t + (iqMin(k) - bf) * 60000;
+        if (ti > now) timers['i' + k] = setTimeout(() => notify('باقي ' + bf + ' دقائق على إقامة ' + n, 'الإقامة الساعة ' + fmt12(hhmmPlus(ptimes[k], iqMin(k))), 'iqama-' + k), ti - now);
+      }
       if (t <= now) return;
       if (prayOn(k)) timers['p' + k] = setTimeout(() => notify('حان وقت صلاة ' + n, 'قم إلى الصلاة، تقبّل الله منك', 'prayer-' + k), t - now);
       if (k === 'Fajr' && notifyOn('fajr')) timers.adhkarFajr = setTimeout(() => notify('أذكار الصباح', 'حان وقت أذكار الصباح 🌅', 'adhkar-fajr'), t - now);
@@ -393,6 +402,7 @@
       c.appendChild(el('div', 'label', 'الصلاة القادمة · جدة'));
       const big = el('div', 'pnext'); big.appendChild(el('b', '', nx.n)); big.appendChild(el('span', '', fmt12(ptimes[nx.k]))); c.appendChild(big);
       const cd = el('div', 'pcount'); c.appendChild(cd);
+      c.appendChild(el('div', 'pcount', 'الإقامة ' + fmt12(hhmmPlus(ptimes[nx.k], iqMin(nx.k)))));
       const upd = () => { const left = nx.t - Date.now(); if (left <= 0) { renderPrayer(); return; } cd.textContent = 'بعد ' + fmtLeft(left); };
       upd(); tick = setInterval(upd, 1000);
       prayerBox.appendChild(c);
@@ -401,7 +411,10 @@
       lc.appendChild(el('div', 'label', 'مواقيت اليوم · فعّل التذكير لكل صلاة'));
       [['Fajr', 'الفجر'], ['Sunrise', 'الشروق'], ['Dhuhr', 'الظهر'], ['Asr', 'العصر'], ['Maghrib', 'المغرب'], ['Isha', 'العشاء']].forEach(([k, n]) => {
         const row = el('div', 'prow' + (k === nx.k ? ' next' : '') + (k === 'Sunrise' ? ' sun' : ''));
-        row.appendChild(el('span', '', n)); row.appendChild(el('span', 'pt', fmt12(ptimes[k])));
+        row.appendChild(el('span', '', n));
+        const pt = el('span', 'pt'); pt.appendChild(el('b', '', fmt12(ptimes[k])));
+        if (k !== 'Sunrise') pt.appendChild(el('small', '', 'الإقامة ' + fmt12(hhmmPlus(ptimes[k], iqMin(k)))));
+        row.appendChild(pt);
         if (k === 'Sunrise') row.appendChild(el('span', 'nosw'));
         else {
           const lab = el('label', 'switch'), inp = document.createElement('input'); inp.type = 'checkbox'; inp.checked = prayOn(k);
@@ -418,6 +431,34 @@
         }
         lc.appendChild(row);
       });
+      const reapply = () => { scheduleAll(); syncPrefs(); renderPrayer(); };
+      const iqRow = el('div', 'prow'); iqRow.style.borderTop = '1px solid var(--line)';
+      const iqName = el('span', '', 'تنبيه قبل الإقامة'); iqRow.appendChild(iqName); iqRow.appendChild(el('span', 'pt'));
+      const iqLab = el('label', 'switch'), iqInp = document.createElement('input'); iqInp.type = 'checkbox'; iqInp.checked = iqBefore() > 0; iqInp.setAttribute('aria-label', 'تنبيه قبل الإقامة');
+      iqInp.onchange = () => { store.set('thakir-iqama-before', iqInp.checked ? (store.get('thakir-iqama-last') || '5') : '0'); reapply(); };
+      iqLab.appendChild(iqInp); iqLab.appendChild(document.createElement('span')); iqRow.appendChild(iqLab); lc.appendChild(iqRow);
+      if (iqBefore() > 0) {
+        const chips = el('div', 'levels'); chips.style.gridTemplateColumns = 'repeat(3,1fr)'; chips.style.marginBottom = '6px';
+        [3, 5, 10].forEach(m => { const b = el('button', 'lvl-btn' + (iqBefore() === m ? ' on' : ''), 'قبل ' + m + ' دقائق'); b.type = 'button'; b.onclick = () => { store.set('thakir-iqama-before', String(m)); store.set('thakir-iqama-last', String(m)); reapply(); }; chips.appendChild(b); });
+        lc.appendChild(chips);
+      }
+      const iqToggle = el('button', 'linkbtn', iqEdit ? 'إخفاء ضبط الإقامة' : 'ضبط مدة الإقامة بعد الأذان'); iqToggle.type = 'button';
+      iqToggle.onclick = () => { iqEdit = !iqEdit; renderPrayer(); };
+      lc.appendChild(iqToggle);
+      if (iqEdit) {
+        const box = el('div', 'iqedit');
+        PRAYERS.forEach(([k, n]) => {
+          const r = el('div', 'iqrow'); r.appendChild(el('span', '', n));
+          const inp = document.createElement('input'); inp.type = 'number'; inp.min = '1'; inp.max = '60'; inp.inputMode = 'numeric'; inp.value = String(iqMin(k)); inp.setAttribute('aria-label', 'مدة الإقامة بعد أذان ' + n);
+          inp.onchange = () => {
+            let o = {}; try { o = JSON.parse(store.get('thakir-iqama-min') || '{}'); } catch (_) {}
+            const v = Math.max(1, Math.min(60, parseInt(inp.value, 10) || IQ_DEF[k])); o[k] = v; store.set('thakir-iqama-min', JSON.stringify(o)); reapply();
+          };
+          r.appendChild(inp); r.appendChild(el('small', '', 'دقيقة بعد الأذان')); box.appendChild(r);
+        });
+        box.appendChild(el('p', 'pnote', 'المدد الافتراضية تقريبية (الفجر 25، الظهر 20، العصر 20، المغرب 10، العشاء 20 دقيقة) وتختلف بين المساجد. عدّلها لتناسب مسجدك.'));
+        lc.appendChild(box);
+      }
       const pushRow = el('button', 'linkbtn', 'جاري فحص الإشعارات الخارجية…'); pushRow.type = 'button';
       pushSub().then(sub => { pushRow.textContent = sub ? 'الإشعارات الخارجية مفعّلة ✓ (تصل والتطبيق مغلق)' : 'فعّل الإشعارات الخارجية لتصلك والتطبيق مغلق'; pushRow.dataset.on = sub ? '1' : '0'; });
       pushRow.onclick = async () => {
@@ -526,7 +567,7 @@
   async function pushSub() {
     try { const reg = await navigator.serviceWorker.ready; return await reg.pushManager.getSubscription(); } catch (_) { return null; }
   }
-  const currentPrefs = () => ({ fajr: prayOn('Fajr'), dhuhr: prayOn('Dhuhr'), asr: prayOn('Asr'), maghrib: prayOn('Maghrib'), isha: prayOn('Isha'), adhkarFajr: notifyOn('fajr'), adhkarAsr: notifyOn('asr') });
+  const currentPrefs = () => ({ fajr: prayOn('Fajr'), dhuhr: prayOn('Dhuhr'), asr: prayOn('Asr'), maghrib: prayOn('Maghrib'), isha: prayOn('Isha'), adhkarFajr: notifyOn('fajr'), adhkarAsr: notifyOn('asr'), iqamaBefore: iqBefore(), iqamaMin: { Fajr: iqMin('Fajr'), Dhuhr: iqMin('Dhuhr'), Asr: iqMin('Asr'), Maghrib: iqMin('Maghrib'), Isha: iqMin('Isha') } });
   async function syncPrefs() {
     const sub = await pushSub(); if (!sub) return;
     try { await fetch(PUSH_WORKER + '/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ subscription: sub.toJSON(), prefs: currentPrefs() }) }); } catch (_) {}
